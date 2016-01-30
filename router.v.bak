@@ -2,13 +2,13 @@
 
 
 module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
-  output[`maxio*22:0] out_staging;
-  output[`maxio*22:0] out_cr_staging;
+  output[`maxio*22-1:0] out_staging;
+  output[`maxio*22-1:0] out_cr_staging;
   output done;
   output can_inject;
   input[2:0] op;
-  input[`maxio*22:0] in_staging_pl;
-  input[`maxio*22:0] cr_staging_pl;
+  input[`maxio*22-1:0] in_staging_pl;
+  input[`maxio*22-1:0] cr_staging_pl;
   input[31:0] data;
   input[13:0] in_cycle;
   input clk;
@@ -76,7 +76,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   
   function full;
     input[15:0] out_port;
-  reg[15:0] next_tail;//template
+    reg[15:0] next_tail;
     begin
         next_tail=(tail_crst[out_port]+1)%`crbufsz;
         if(next_tail==head_crst[out_port])

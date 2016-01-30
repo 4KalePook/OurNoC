@@ -2,15 +2,15 @@
 
 
 module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
-  output[`maxio*22:0] out_staging;
-  output[`maxio*22:0] out_cr_staging;
+  output[`maxio*22-1:0] out_staging;
+  output[`maxio*22-1:0] out_cr_staging;
   output done;
   output can_inject;
   input[2:0] op;
-  input[`maxio*22:0] in_staging_pl;
-  input[`maxio*22:0] cr_staging_pl;
+  input[`maxio*22-1:0] in_staging_pl;
+  input[`maxio*22-1:0] cr_staging_pl;
   input[31:0] data;
-  input[13:0] in_cycle;
+  input[15:0] in_cycle;
   input clk;
   
   reg[5:0] rt[13:0];
