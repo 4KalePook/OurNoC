@@ -1,0 +1,122 @@
+m255
+K3
+13
+cModel Technology
+Z0 dC:\altera\13.1
+vflit
+Z1 !s100 <XSG>Y>n_CN:2@>58Wk2c1
+Z2 IgYNi:zXPgoCFS84mc[5J^1
+Z3 VTazXDUO;2eFE1IaJ5<5k;1
+Z4 dC:\codes\contrib\OurNoC
+Z5 w1453804926
+Z6 8C:/codes/contrib/OurNoC/flit.v
+Z7 FC:/codes/contrib/OurNoC/flit.v
+L0 1
+Z8 OV;L;10.1d;51
+r1
+31
+Z9 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/flit.v|
+Z10 o-work work -O0
+Z11 !s108 1454150849.632000
+Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
+!i10b 1
+!s85 0
+!s101 -O0
+vmain
+Z13 IlC5[6TOToXHYML3d>FA:l1
+Z14 VEAT@0_d?1jQUQ5cgEJon`1
+Z15 d/home/mahdi/Courses/DSD/project/OurNoC
+Z16 w1454167137
+Z17 8/home/mahdi/Courses/DSD/project/OurNoC/main.v
+Z18 F/home/mahdi/Courses/DSD/project/OurNoC/main.v
+Z19 Fread.v
+Z20 Fparameters.v
+L0 3
+Z21 OV;L;10.1b;51
+r1
+31
+Z22 !s108 1454167163.753698
+Z23 !s107 read.v|router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+Z24 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+R10
+Z25 !s100 dmd?^3gzDb1Z`TEd:Idm60
+!i10b 1
+!s85 0
+!s101 -O0
+vpacket
+Z26 !s100 iR7ZhgVJM]CQkaYjoY>in2
+Z27 I14o>DPo3S?k:aYj`2T2mi3
+Z28 VFEzZDC<@3W>9>fz>UPD5O1
+R4
+Z29 w1453818654
+Z30 8C:/codes/contrib/OurNoC/packet.v
+Z31 FC:/codes/contrib/OurNoC/packet.v
+L0 1
+R8
+r1
+31
+Z32 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/packet.v|
+R10
+Z33 !s108 1454150849.269000
+Z34 !s107 C:/codes/contrib/OurNoC/packet.v|
+!i10b 1
+!s85 0
+!s101 -O0
+vread
+Z35 IY=YIcj8^a0]ES^?TXCj=;3
+Z36 VjDj5RHRUnh8Zc7J4S]MEz1
+R15
+Z37 w1454161412
+Z38 8/home/mahdi/Courses/DSD/project/OurNoC/read.v
+Z39 F/home/mahdi/Courses/DSD/project/OurNoC/read.v
+L0 2
+R21
+r1
+31
+Z40 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/read.v|
+R10
+Z41 !s100 JgnNM[H:W^H;bO0SgLgWO1
+Z42 !s108 1454161414.063761
+Z43 !s107 parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/read.v|
+!i10b 1
+!s85 0
+!s101 -O0
+vrouter
+!i10b 1
+Z44 !s100 S4]9I];VA:BEN22g96o==1
+Z45 IFRn1YWc@F[XQ>YOkWg:R^0
+Z46 VKROL>KDP@e_7e_T@8hEbg1
+R15
+w1454167807
+Z47 Frouter.v
+R17
+R18
+L0 4
+R21
+r1
+!s85 0
+31
+!s108 1454167809.976003
+!s107 read.v|router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+R24
+!s101 -O0
+R10
+vtraffic
+Z48 !s100 DQEJeJWj>OF8002oWi;hV0
+Z49 IlX_]8CcEl0K[Ccj33gV<52
+Z50 V`nbFc3EfZmSDO^cPaV6=m1
+R4
+Z51 w1454146523
+Z52 8C:/codes/contrib/OurNoC/traffic.v
+Z53 FC:/codes/contrib/OurNoC/traffic.v
+L0 1
+R8
+r1
+31
+Z54 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
+R10
+Z55 !s108 1454150849.490000
+Z56 !s107 C:/codes/contrib/OurNoC/traffic.v|
+!i10b 1
+!s85 0
+!s101 -O0
