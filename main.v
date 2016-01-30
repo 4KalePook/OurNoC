@@ -39,8 +39,8 @@ module main();
         begin
             for(j=0; j<`maxio; j=j+1)
             begin
-                in_staging[out_router[i][j]][Range(out_port[i][j], `flit_size)] = out_staging[i][Range(j, `flit_size)];
-                in_cr_staging[i][Range(j, `flit_size)] = out_cr_staging[out_router[i][j]][Range(out_port[i][j], `flit_size)];
+                in_staging[out_router[i][j]][`Range(out_port[i][j], `flit_size)] = out_staging[i][`Range(j, `flit_size)];
+                in_cr_staging[i][`Range(j, `flit_size)] = out_cr_staging[out_router[i][j]][`Range(out_port[i][j], `flit_size)];
                 op[i] = `LoadStaging;
             end
         end
@@ -74,6 +74,7 @@ module main();
             begin
                 load_staging;
                 next_state = `LoadStaging;
+                in_cycle = in_cycle + 1;
             end
         endcase
 

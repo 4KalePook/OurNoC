@@ -11,7 +11,7 @@
 `define max_cr_delay 100
 `define flit_size 22
 `define data_size 32
-`define in_cycle_size 14
+`define in_cycle_size 16
 `define op_size 3
 //TODO: mem_size should check
 `define mem_size 1000
@@ -26,5 +26,5 @@
 
 `define CopyStaging 0
 `define State_bit 3
-`define Range(i, siz) size*(i+1)-1:siz*i
+`define Range(i,siz) (siz*(i+1)-1):(siz*i)
 `endif
