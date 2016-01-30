@@ -19,7 +19,7 @@ Z9 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/flit.v|
 Z10 o-work work -O0
 !i10b 1
 !s85 0
-Z11 !s108 1454150849.632000
+Z11 !s108 1454167319.760000
 Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
 !s101 -O0
 vpacket
@@ -36,46 +36,46 @@ r1
 31
 Z19 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/packet.v|
 R10
-Z20 !s108 1454150849.269000
+Z20 !s108 1454167319.336000
 Z21 !s107 C:/codes/contrib/OurNoC/packet.v|
 !i10b 1
 !s85 0
 !s101 -O0
 vrouter
 !i10b 1
-!s100 AN:mg9mKnMkleY]_kYDDE1
-IWh=H2i4;3bi4RzHIg?k_C0
-Z22 VUB9A@:``NlhBV3Io>QfTO0
+Z22 !s100 fbn:CW=[;ST<]H4jDPA6f2
+Z23 IXe]Cf4i]YJoPClCjdkAf22
+Z24 V[i]PAlm7FN0<Kcdf81U:O3
 R4
-w1454150847
-Z23 8C:/codes/contrib/OurNoC/router.v
-Z24 FC:/codes/contrib/OurNoC/router.v
+Z25 w1454167305
+Z26 8C:/codes/contrib/OurNoC/router.v
+Z27 FC:/codes/contrib/OurNoC/router.v
 L0 4
 R8
 r1
 !s85 0
 31
-!s108 1454150849.788000
+!s108 1454167319.948000
 !s107 parameters.v|C:/codes/contrib/OurNoC/router.v|
-Z25 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/router.v|
+Z28 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/router.v|
 !s101 -O0
 R10
 vtraffic
-Z26 !s100 DQEJeJWj>OF8002oWi;hV0
-Z27 IlX_]8CcEl0K[Ccj33gV<52
-Z28 V`nbFc3EfZmSDO^cPaV6=m1
+Z29 !s100 DQEJeJWj>OF8002oWi;hV0
+Z30 IlX_]8CcEl0K[Ccj33gV<52
+Z31 V`nbFc3EfZmSDO^cPaV6=m1
 R4
-Z29 w1454146523
-Z30 8C:/codes/contrib/OurNoC/traffic.v
-Z31 FC:/codes/contrib/OurNoC/traffic.v
+Z32 w1454146523
+Z33 8C:/codes/contrib/OurNoC/traffic.v
+Z34 FC:/codes/contrib/OurNoC/traffic.v
 L0 1
 R8
 r1
 31
-Z32 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
+Z35 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
 R10
-Z33 !s108 1454150849.490000
-Z34 !s107 C:/codes/contrib/OurNoC/traffic.v|
+Z36 !s108 1454167319.616000
+Z37 !s107 C:/codes/contrib/OurNoC/traffic.v|
 !i10b 1
 !s85 0
 !s101 -O0

@@ -5,7 +5,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   output[`maxio*22-1:0] out_staging;
   output[`maxio*22-1:0] out_cr_staging;
   output done;
-  output can_inject;
+  output[`maxvc:0] can_inject;
   input[2:0] op;
   input[`maxio*22-1:0] in_staging_pl;
   input[`maxio*22-1:0] cr_staging_pl;
@@ -13,15 +13,48 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   input[15:0] in_cycle;
   input clk;
   
+  reg [22-1:0] out_staging_ar[`maxio:0];
+  reg [22-1:0] out_cr_staging_ar[`maxio:0];
+  wire [22-1:0] in_staging_pl_ar[`maxio:0];
+  wire [22-1:0] cr_staging_pl_ar[`maxio:0];
+  
+  /* Range access is not possible in runtime.
+     the following code will generate an array from the flattened input.
+  */
+  generate
+    genvar i;
+    for(i=0;i<`maxio;i=i+1)begin
+      assign out_staging[(i+1)*22:i*22]=out_staging_ar[i];
+      assign out_cr_staging[(i+1)*22:i*22]=out_cr_staging_ar[i];
+      assign in_staging_pl_ar[i]=in_staging_pl[(i+1)*22:i*22];
+      assign cr_staging_pl_ar[i]=cr_staging_pl[(i+1)*22:i*22];
+    end
+  endgenerate
+  
+  
   reg[5:0] rt[13:0];
-  reg[`maxio*22:0] in_staging;
+  //per input
+  reg[21:0] in_staging[`maxio:0];
+  reg[21:0] buffer[`maxio:0][`maxvc:0];
+  //per output buffer
+  reg[15:0]  cur_in_port[`maxio:0][`maxvc:0];
+  reg[7:0]  credit[`maxio:0][`maxvc:0];
+  
   reg[21:0] crst[`maxio:0][`crbufsz:0];
   reg[15:0] head_crst[`maxio:0];
   reg[15:0] tail_crst[`maxio:0];
+  
   reg[6:0] num_in_ports;
   reg[6:0] num_out_ports;
   reg[5:0] numvcs;
   reg[15:0] credit_delay;
+  
+  generate
+    
+    for(i=0;i<`maxvc;i=i+1)begin
+        assign can_inject[i]=~(buffer[0][i][21]);
+    end
+  endgenerate
   
   /*******************************
   **        Queue Tasks         **
@@ -94,22 +127,76 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
    **/
   task load_rt; 
   begin
-    
+    rt[data[13:0]]=data[19:14];
   end
   endtask
   
+  /** Load input into stagings **/
   task load_staging;
-  begin
-  end
+    reg[21:0] crtmp;
+    integer i;
+    begin
+        for(i=0;i<num_in_ports;i=i+1) begin
+            if(in_staging[i][21])begin
+                if(`debug)
+                    $display("Error input staging is full\n");
+            end
+            in_staging[i]=in_staging_pl_ar[i];
+        end
+        for(i=1;i<num_out_ports;i=i+1) 
+        begin
+            crtmp=cr_staging_pl_ar[i];
+            if(crtmp[21])
+            begin
+                if(!full(i))
+                begin
+                    tenqueue(i,crtmp[15:0]+credit_delay,crtmp[20:16]);
+                end 
+                else begin
+                    if(`debug)
+                      $display("Error credit buffer is full\n");
+                end
+            end
+        end
+    end
   endtask
   
-  task phase0; 
-  begin
-  end
+  /** in_staging -> buffer **/ 
+  task phase0;
+    reg[21:0] tmp;
+    reg[4:0] vc;
+    integer i; 
+    begin
+      for(i=0;i<num_in_ports;i=i+1) begin
+          tmp=in_staging[i];
+          if(tmp[21]==1) begin
+              vc=tmp[20:16];
+              if(buffer[i][vc][21]==1) begin
+                  if(`debug  && i!=0)
+                      $display("Error input buffer is full.\n");
+              end
+              else begin
+                      buffer[i][vc]=tmp;
+              end
+          end
+          in_staging[i]='0;
+      end
+      
+      for(i=1;i<num_out_ports;i=i+1) begin
+          
+          if(!tempty(i,in_cycle)) begin
+              dequeue(vc,i);
+              credit[i][vc]=credit[i][vc]+1;
+          end
+          
+      end
+    end
   endtask
   
+  /** routing **/
   task phase1;
   begin
+    
   end
   endtask
   

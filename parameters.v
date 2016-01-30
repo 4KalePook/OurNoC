@@ -1,6 +1,7 @@
 `ifndef parameters
 `define parameters 1
-
+`define debug 1
+`define input_buffer_size 1
 
 `define max_router 1024
 `define maxio 16
