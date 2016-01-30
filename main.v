@@ -1,14 +1,14 @@
 `include "parameters.v"
 `include "router.v"
 module main();
-    `include "read.v"
+    reg [`max_router_bit-1 :0]     out_router    [0:`max_router-1][0:`maxio-1];
+    reg [`maxio_bit-1      :0]     out_port      [0:`max_router-1][0:`maxio-1];
+
     reg clk;
-    reg state;
+    reg [`State_bit:0] state;
+    reg [`State_bit:0] next_state;
 
-    wire [`max_router_bit-1 :0]     out_router    [0:`max_router-1][0:`maxio-1];
-    wire [`maxio_bit-1      :0]     out_port      [0:`max_router-1][0:`maxio-1];
-
-
+    `include "read.v"
 
     /*******************************
     **   Router instantiation     **
@@ -20,7 +20,7 @@ module main();
     reg [`maxio*`flit_size-1    :0]     in_staging[`max_router-1:0];
     reg [`maxio*`flit_size-1    :0]     in_cr_staging[`max_router-1:0];
     reg [`data_size-1           :0]     data[`max_router-1:0];
-    reg [`in_cycle_size-1       :0]     in_cycle[`max_router-1:0];
+    reg [`in_cycle_size-1       :0]     in_cycle;
     reg [`op_size-1             :0]     op[`max_router-1:0];
 
     generate
@@ -28,17 +28,21 @@ module main();
     for(i=0; i<`max_router; i=i+1)
     begin:routers
 
-        router r(out_staging[i], out_cr_staging[i], done[i], can_inject[i], op[i], in_staging[i], in_cr_staging[i], data[i], in_cycle[i], clk);
+        router r(out_staging[i], out_cr_staging[i], done[i], can_inject[i], op[i], in_staging[i], in_cr_staging[i], data[i], in_cycle, clk);
     end
     endgenerate
 
 
-    task copy_staging;
+    task load_staging;
         integer i, j;
         for(i=0; i<`max_router; i=i+1)
         begin
             for(j=0; j<`maxio; j=j+1)
+            begin
                 in_staging[out_router[i][j]][Range(out_port[i][j], `flit_size)] = out_staging[i][Range(j, `flit_size)];
+                in_cr_staging[i][Range(j, `flit_size)] = out_cr_staging[out_router[i][j]][Range(out_port[i][j], `flit_size)];
+                op[i] = `LoadStaging;
+            end
         end
     endtask
 
@@ -47,11 +51,33 @@ module main();
     initial
     begin
         read();
+        clk = 0;
+        in_cycle=0;
     end
+
+    always #1 clk=~clk;
+
     always @(posedge clk) begin
         case(state)
-          `CopyStaging: copy_staging;
+            `NOP: ;
+            `LoadStaging:
+            begin
+                load_staging;
+                next_state = `Phase0;
+            end
+            `Phase0:
+            begin
+                // load_staging;
+                next_state = `Phase1;
+            end
+            `Phase1:
+            begin
+                load_staging;
+                next_state = `LoadStaging;
+            end
         endcase
+
+        state = next_state;
     end
 
 endmodule

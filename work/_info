@@ -23,24 +23,26 @@ Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
 !s85 0
 !s101 -O0
 vmain
-Z13 I=hC<H@oI[?hIikT^Kfn:A1
-Z14 VEAT@0_d?1jQUQ5cgEJon`1
-Z15 d/home/mahdi/Courses/DSD/project/OurNoC
-Z16 w1454158173
-Z17 8/home/mahdi/Courses/DSD/project/OurNoC/main.v
-Z18 F/home/mahdi/Courses/DSD/project/OurNoC/main.v
-L0 3
-Z19 OV;L;10.1b;51
-r1
-31
-Z20 !s108 1454158177.549619
-Z21 !s107 router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
-Z22 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
-R10
-Z23 !s100 G6MABK1Q@GnOi@gT]>MJ=3
 !i10b 1
+!s100 L1NFUF:O_SIzS;cCWMZ;N3
+IegAl;Kn06[MgQSLNzaYK]3
+Z13 VEAT@0_d?1jQUQ5cgEJon`1
+Z14 d/home/mahdi/Courses/DSD/project/OurNoC
+Z15 w1454165681
+Z16 8/home/mahdi/Courses/DSD/project/OurNoC/main.v
+Z17 F/home/mahdi/Courses/DSD/project/OurNoC/main.v
+Z18 Fread.v
+Z19 Fparameters.v
+L0 3
+Z20 OV;L;10.1b;51
+r1
 !s85 0
+31
+Z21 !s108 1454165683.143948
+Z22 !s107 read.v|router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+Z23 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
 !s101 -O0
+R10
 vpacket
 Z24 !s100 iR7ZhgVJM]CQkaYjoY>in2
 Z25 I14o>DPo3S?k:aYj`2T2mi3
@@ -63,12 +65,12 @@ Z32 !s107 C:/codes/contrib/OurNoC/packet.v|
 vread
 Z33 IY=YIcj8^a0]ES^?TXCj=;3
 Z34 VjDj5RHRUnh8Zc7J4S]MEz1
-R15
+R14
 Z35 w1454161412
 Z36 8/home/mahdi/Courses/DSD/project/OurNoC/read.v
 Z37 F/home/mahdi/Courses/DSD/project/OurNoC/read.v
 L0 2
-R19
+R20
 r1
 31
 Z38 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/read.v|
@@ -84,19 +86,19 @@ vrouter
 Z42 !s100 S4]9I];VA:BEN22g96o==1
 Z43 IFRn1YWc@F[XQ>YOkWg:R^0
 Z44 VKROL>KDP@e_7e_T@8hEbg1
+R14
 R15
-w1454163730
 Z45 Frouter.v
+R16
 R17
-R18
 L0 4
-R19
+R20
 r1
 !s85 0
 31
-!s108 1454163755.398464
-!s107 read.v|router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+R21
 R22
+R23
 !s101 -O0
 R10
 vtraffic
