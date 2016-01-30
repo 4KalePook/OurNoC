@@ -1,12 +1,12 @@
 `include "parameters.v"
 `include "router.v"
 module main();
-
+    `include "read.v"
     reg clk;
     reg state;
 
-    wire [`maxio-1   :0]     out_num    [`max_router-1:0];
-    wire [`maxio-1   :0]     in_num     [`max_router-1:0];
+    wire [`max_router_bit-1 :0]     out_router    [0:`max_router-1][0:`maxio-1];
+    wire [`maxio_bit-1      :0]     out_port      [0:`max_router-1][0:`maxio-1];
 
 
 
@@ -38,11 +38,16 @@ module main();
         for(i=0; i<`max_router; i=i+1)
         begin
             for(j=0; j<`maxio; j=j+1)
-                in_staging[out_num[i][j]] = out_staging[i][Range(j, `flit_size)];
+                in_staging[out_router[i][j]][Range(out_port[i][j], `flit_size)] = out_staging[i][Range(j, `flit_size)];
         end
     endtask
 
 
+
+    initial
+    begin
+        read();
+    end
     always @(posedge clk) begin
         case(state)
           `CopyStaging: copy_staging;
