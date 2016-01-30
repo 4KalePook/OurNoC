@@ -12,11 +12,14 @@
 `define in_cycle_size 14
 `define op_size 3
 
-
 `define NOP 0
 `define LoadStaging 1
 `define Phase0 2
 `define Phase1 3
 `define LoadRt 4
 `define Init   5
+
+`define CopyStaging 0
+
+`define Range(i, siz) size*(i+1)-1:siz*i
 `endif
