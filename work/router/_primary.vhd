@@ -10,6 +10,7 @@ entity router is
         in_staging_pl   : in     vl_logic_vector(352 downto 0);
         cr_staging_pl   : in     vl_logic_vector(352 downto 0);
         data            : in     vl_logic_vector(31 downto 0);
+        in_cycle        : in     vl_logic_vector(13 downto 0);
         clk             : in     vl_logic
     );
 end router;
