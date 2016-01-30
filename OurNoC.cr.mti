@@ -1,0 +1,26 @@
+C:/codes/contrib/OurNoC/flit.v {1 {vlog -work work C:/codes/contrib/OurNoC/flit.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+-- Compiling module flit
+
+Top level modules:
+	flit
+
+} {} {}} C:/codes/contrib/OurNoC/traffic.v {1 {vlog -work work C:/codes/contrib/OurNoC/traffic.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+-- Compiling module traffic
+
+Top level modules:
+	traffic
+
+} {} {}} C:/codes/contrib/OurNoC/packet.v {1 {vlog -work work C:/codes/contrib/OurNoC/packet.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+-- Compiling module packet
+
+Top level modules:
+	packet
+
+} {} {}} C:/codes/contrib/OurNoC/dequeu.v {0 {vlog -work work C:/codes/contrib/OurNoC/dequeu.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+** Error: C:/codes/contrib/OurNoC/dequeu.v(2): near "always": syntax error, unexpected always, expecting class
+
+} {3.0 4.0} {}}
