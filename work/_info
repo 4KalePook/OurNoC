@@ -17,13 +17,12 @@ r1
 31
 Z9 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/flit.v|
 Z10 o-work work -O0
-Z11 !s108 1454143634.289000
-Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
 !i10b 1
 !s85 0
+Z11 !s108 1454147916.847000
+Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
 !s101 -O0
 vpacket
-!i10b 1
 Z13 !s100 iR7ZhgVJM]CQkaYjoY>in2
 Z14 I14o>DPo3S?k:aYj`2T2mi3
 Z15 VFEzZDC<@3W>9>fz>UPD5O1
@@ -34,48 +33,49 @@ Z18 FC:/codes/contrib/OurNoC/packet.v
 L0 1
 R8
 r1
-!s85 0
 31
-!s108 1454145688.293000
-!s107 C:/codes/contrib/OurNoC/packet.v|
 Z19 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/packet.v|
-!s101 -O0
 R10
-vrouter
-Z20 !s100 JJj]9FFFDa01HziMd;b0Z0
-Z21 I`K8YTReM13DZFi^Yhm2:30
-Z22 VK29PJLH4I[[FEP1b17LX`2
-R4
-Z23 w1454144022
-Z24 8C:/codes/contrib/OurNoC/router.v
-Z25 FC:/codes/contrib/OurNoC/router.v
-L0 12
-R8
-r1
-31
-Z26 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/router.v|
-R10
-Z27 !s108 1454144026.622000
-Z28 !s107 C:/codes/contrib/OurNoC/router.v|
+Z20 !s108 1454147916.587000
+Z21 !s107 C:/codes/contrib/OurNoC/packet.v|
 !i10b 1
 !s85 0
 !s101 -O0
-vtraffic
-Z29 !s100 DQEJeJWj>OF8002oWi;hV0
-Z30 IlX_]8CcEl0K[Ccj33gV<52
-Z31 V`nbFc3EfZmSDO^cPaV6=m1
+vrouter
+!i10b 1
+!s100 gkWii9z[T?>`5OUVT@d4`3
+I>2ni==hM2BHz9ggk=A_ZT1
+Z22 VK29PJLH4I[[FEP1b17LX`2
 R4
-Z32 w1453901442
-Z33 8C:/codes/contrib/OurNoC/traffic.v
-Z34 FC:/codes/contrib/OurNoC/traffic.v
+w1454147915
+Z23 8C:/codes/contrib/OurNoC/router.v
+Z24 FC:/codes/contrib/OurNoC/router.v
+L0 4
+R8
+r1
+!s85 0
+31
+!s108 1454147917.001000
+!s107 parameters.v|C:/codes/contrib/OurNoC/router.v|
+Z25 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/router.v|
+!s101 -O0
+R10
+vtraffic
+Z26 !s100 DQEJeJWj>OF8002oWi;hV0
+Z27 IlX_]8CcEl0K[Ccj33gV<52
+Z28 V`nbFc3EfZmSDO^cPaV6=m1
+R4
+Z29 w1454146523
+Z30 8C:/codes/contrib/OurNoC/traffic.v
+Z31 FC:/codes/contrib/OurNoC/traffic.v
 L0 1
 R8
 r1
 31
-Z35 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
+Z32 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
 R10
-Z36 !s108 1454143634.164000
-Z37 !s107 C:/codes/contrib/OurNoC/traffic.v|
+Z33 !s108 1454147916.725000
+Z34 !s107 C:/codes/contrib/OurNoC/traffic.v|
 !i10b 1
 !s85 0
 !s101 -O0

@@ -1,15 +1,7 @@
-`define maxio 16
-`define maxvc 8
-`define crbufsz 100
+`include "parameters.v"
 
-`define NOP 0
-`define LoadStaging 1
-`define Phase0 2
-`define Phase1 3
-`define LoadRt 4
-`define Init   5
 
-module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, clk);
+module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
   output[`maxio*22:0] out_staging;
   output[`maxio*22:0] out_cr_staging;
   output done;
@@ -18,40 +10,74 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   input[`maxio*22:0] in_staging_pl;
   input[`maxio*22:0] cr_staging_pl;
   input[31:0] data;
+  input[13:0] in_cycle;
   input clk;
   
   reg[5:0] rt[13:0];
   reg[`maxio*22:0] in_staging;
   reg[21:0] crst[`maxio:0][`crbufsz:0];
-  reg[10:0] head_crst[`maxio:0];
-  reg[10:0] tail_crst[`maxio:0];
-  reg[10:0] head_crst;
-  reg[5:0] num_in_ports;
-  reg[5:0] num_out_ports;
-  reg[4:0] numvcs;
-  reg[13:0] credit_delay;
+  reg[15:0] head_crst[`maxio:0];
+  reg[15:0] tail_crst[`maxio:0];
+  reg[6:0] num_in_ports;
+  reg[6:0] num_out_ports;
+  reg[5:0] numvcs;
+  reg[15:0] credit_delay;
   
   /*******************************
   **        Queue Tasks         **
   *******************************/
-  task tenqueue(input cycle,vc);
-    
+  task tenqueue(input[15:0] out_port,
+                input[15:0] cycle,
+                input[4:0] vc);
+      begin
+        reg[15:0] elem =tail_crst[out_port];
+        crst[out_port][elem][15:0]=cycle+credit_delay;
+        crst[out_port][elem][20:16]=vc;
+        crst[out_port][elem][21]=1; 
+        tail_crst[out_port]=(tail_crst[out_port]+1)%`crbufsz;
+      end
   endtask
   
-  task tdequeue();
-    
-  endtask
-  task empty();
-    
-  endtask
-  
-  task tempty();
-    
+  task dequeue(output[4:0] vc, input[15:0] out_port);
+    begin
+        reg[15:0] elem =head_crst[out_port];
+        vc=crst[out_port][elem][20:16];
+        head_crst[out_port]=(head_crst[out_port]+1)%`crbufsz;
+    end
   endtask
   
-  task full_p();
-    
-  endtask
+  function empty;
+    input[15:0] out_port;
+    begin
+        if(head_crst[out_port]==tail_crst[out_port])
+          empty=1;
+        else
+          empty=0;
+    end
+  endfunction
+  
+  function tempty;
+    input[15:0] out_port;
+    input[15:0] cycle;
+    begin
+        reg[15:0] elem =head_crst[out_port];
+        if(empty(out_port) == 1 || crst[out_port][elem][15:0] > cycle)
+          tempty=1;
+        else
+          tempty=0;
+    end
+  endfunction
+  
+  function full;
+    input[13:0] out_port;
+    begin
+        reg[13:0] next_tail=(tail_crst[out_port]+1)%crbufsz;
+        if(next_tail==head_crst[out_port])
+          full=1;
+        else
+          full=0;
+    end
+  endfunction
   /*******************************
   **        Router Tasks        **
   *******************************/
