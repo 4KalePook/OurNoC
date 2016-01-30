@@ -7,6 +7,10 @@
 `define maxvc 8
 `define crbufsz 100
 `define max_cr_delay 100
+`define flit_size 22
+`define data_size 32
+`define in_cycle_size 14
+`define op_size 3
 
 
 `define NOP 0

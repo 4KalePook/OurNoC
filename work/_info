@@ -17,65 +17,85 @@ r1
 31
 Z9 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/flit.v|
 Z10 o-work work -O0
-!i10b 1
-!s85 0
 Z11 !s108 1454150849.632000
 Z12 !s107 C:/codes/contrib/OurNoC/flit.v|
+!i10b 1
+!s85 0
 !s101 -O0
+vmain
+!i10b 1
+Z13 !s100 VC`E[O_fA``2KUCl]^hl52
+Z14 IjlMV<Ke:Y7F2<I2RQ4ZU=3
+Z15 VEAT@0_d?1jQUQ5cgEJon`1
+Z16 d/home/mahdi/Courses/DSD/project/OurNoC
+Z17 w1454156206
+Z18 8/home/mahdi/Courses/DSD/project/OurNoC/main.v
+Z19 F/home/mahdi/Courses/DSD/project/OurNoC/main.v
+L0 3
+Z20 OV;L;10.1b;51
+r1
+!s85 0
+31
+Z21 !s108 1454156225.849988
+Z22 !s107 router.v|parameters.v|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+Z23 !s90 -reportprogress|300|-work|work|/home/mahdi/Courses/DSD/project/OurNoC/main.v|
+!s101 -O0
+R10
 vpacket
-Z13 !s100 iR7ZhgVJM]CQkaYjoY>in2
-Z14 I14o>DPo3S?k:aYj`2T2mi3
-Z15 VFEzZDC<@3W>9>fz>UPD5O1
+Z24 !s100 iR7ZhgVJM]CQkaYjoY>in2
+Z25 I14o>DPo3S?k:aYj`2T2mi3
+Z26 VFEzZDC<@3W>9>fz>UPD5O1
 R4
-Z16 w1453818654
-Z17 8C:/codes/contrib/OurNoC/packet.v
-Z18 FC:/codes/contrib/OurNoC/packet.v
+Z27 w1453818654
+Z28 8C:/codes/contrib/OurNoC/packet.v
+Z29 FC:/codes/contrib/OurNoC/packet.v
 L0 1
 R8
 r1
 31
-Z19 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/packet.v|
+Z30 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/packet.v|
 R10
-Z20 !s108 1454150849.269000
-Z21 !s107 C:/codes/contrib/OurNoC/packet.v|
+Z31 !s108 1454150849.269000
+Z32 !s107 C:/codes/contrib/OurNoC/packet.v|
 !i10b 1
 !s85 0
 !s101 -O0
 vrouter
 !i10b 1
-!s100 AN:mg9mKnMkleY]_kYDDE1
-IWh=H2i4;3bi4RzHIg?k_C0
-Z22 VUB9A@:``NlhBV3Io>QfTO0
-R4
-w1454150847
-Z23 8C:/codes/contrib/OurNoC/router.v
-Z24 FC:/codes/contrib/OurNoC/router.v
+Z33 !s100 _R?I;DU@;?l1DhDkAClGB0
+Z34 I]Xeh?QgDVlGcKnW9O5doQ1
+Z35 VUB9A@:``NlhBV3Io>QfTO0
+R16
+R17
+Z36 Frouter.v
+R18
+R19
 L0 4
-R8
+R20
 r1
 !s85 0
 31
-!s108 1454150849.788000
-!s107 parameters.v|C:/codes/contrib/OurNoC/router.v|
-Z25 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/router.v|
+R21
+R22
+R23
 !s101 -O0
 R10
 vtraffic
-Z26 !s100 DQEJeJWj>OF8002oWi;hV0
-Z27 IlX_]8CcEl0K[Ccj33gV<52
-Z28 V`nbFc3EfZmSDO^cPaV6=m1
+Z37 !s100 DQEJeJWj>OF8002oWi;hV0
+Z38 IlX_]8CcEl0K[Ccj33gV<52
+Z39 V`nbFc3EfZmSDO^cPaV6=m1
 R4
-Z29 w1454146523
-Z30 8C:/codes/contrib/OurNoC/traffic.v
-Z31 FC:/codes/contrib/OurNoC/traffic.v
+Z40 w1454146523
+Z41 8C:/codes/contrib/OurNoC/traffic.v
+Z42 FC:/codes/contrib/OurNoC/traffic.v
 L0 1
 R8
 r1
 31
-Z32 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
+Z43 !s90 -reportprogress|300|-work|work|C:/codes/contrib/OurNoC/traffic.v|
 R10
-Z33 !s108 1454150849.490000
-Z34 !s107 C:/codes/contrib/OurNoC/traffic.v|
+Z44 !s108 1454150849.490000
+Z45 !s107 C:/codes/contrib/OurNoC/traffic.v|
 !i10b 1
 !s85 0
 !s101 -O0
