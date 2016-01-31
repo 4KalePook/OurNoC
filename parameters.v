@@ -53,9 +53,9 @@
 /*******************************
 **      Struct Data           **
 *******************************/
-`define DataBitSize 32 //{dst[14], vc[5], num_flit[2]}
+`define DataBitSize 32 //{dst[14], vc[5], num_flit[10]}
 `define .DataDst [31:18]
 `define .DataVc [17:13]
-`define .DataNumFlit [12:11]
+`define .DataNumFlit [12:3]
 
 `endif
