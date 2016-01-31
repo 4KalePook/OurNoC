@@ -9,6 +9,7 @@
 `define maxio_bit 4
 `define maxvc 8
 `define maxvc_bit 3
+`define max_cycle_bit 20
 
 `define crbufsz 100
 
@@ -21,7 +22,7 @@
 `define op_size 3
 //TODO: mem_size should check
 `define mem_size 1000
-`define read_word_size 10
+`define read_word_size 20
 `define NOP 0
 `define LoadStaging 1
 `define Phase0 2
