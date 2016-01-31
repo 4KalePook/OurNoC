@@ -19,8 +19,21 @@
 `define max_cr_delay 100
 `define max_cr_delay_bit 7
 
-`define flit_size 22
-`define data_size 32
+`define BufferBitSize 22 //{full[1],vc[5],flit[16]}
+`define .BufferFull [21:21]
+`define .BufferVc [20:16]
+
+`define FlitSize 16 //{dst[14], head[1], tail[1]}
+`define .FlitDst [15:2]
+`define .FlitHead [1:1]
+`define .FlitTail [0:0]
+
+
+`define DataBitSize 32 //{dst[14], vc[5], num_flit[2]}
+`define .DataDst [31:18]
+`define .DataVc [17:13]
+`define .DataNumFlit [12:11]
+
 `define in_cycle_size 16
 `define op_size 3
 //TODO: mem_size should check
@@ -32,12 +45,6 @@
 `define Phase1 3
 `define LoadRt 4
 `define Init   5
-
-`define FlitSrc 42:33
-`define FlitDst 32:23
-`define FlitVc 22:20
-`define FlitNum 19:17
-// `define
 
 `define CopyStaging 0
 `define State_bit 3
