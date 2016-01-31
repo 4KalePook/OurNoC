@@ -5,7 +5,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   output[`maxio*22-1:0] out_staging;
   output[`maxio*22-1:0] out_cr_staging;
   output done;
-  output[`maxvc:0] can_inject;
+  output[`maxvc-1:0] can_inject;
   input[2:0] op;
   input[`maxio*22-1:0] in_staging_pl;
   input[`maxio*22-1:0] cr_staging_pl;
@@ -202,15 +202,100 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   
   /** routing **/
   task phase1;
-  
+    reg[`maxio-1:0] mark_out;
+    reg[`maxio-1:0] mark_in;
+    integer i;
+    integer vc;
+    reg[15:0] flit;
+    reg[15:0] out_p;
+    reg[7:0] cred;
+    reg is_full;
+    reg ret;
+    
     begin
+      mark_out='0;
+      mark_in='0;
+      ret=1;
+      for(i=0; i<num_out_ports; i=i+1) begin
+          for(vc=0; vc<numvcs; vc=vc+1) begin
+              out_staging_ar[i]='0;
+          end
+      end
       
+      for(vc=0; vc<numvcs; vc=vc+1) begin
+          for(i=0; i<num_in_ports; i=i+1) begin
+              out_cr_staging_ar[i]='0;
+              if(mark_in[i]==0)begin
+                  flit = buffer[i][vc][15:0];
+                  is_full = buffer[i][vc][21];
+                  if(is_full) begin
+                      ret=0;
+                      out_p = rt[flit[13:0]];
+                      
+                     if(!mark_out[out_p] && (cur_in_port[out_p][vc]=='1 || cur_in_port[out_p][vc]==i)) begin   
+                          cred = credit[out_p][vc];                
+                          
+                          
+                          if(out_p==0)begin
+                                if(flit[14])
+                                  cur_in_port[out_p][vc]='1;
+                                else
+                                  cur_in_port[out_p][vc]=i;
+                            
+                                mark_in[i]=1;
+                                mark_out[out_p]=1;
+                          
+                                out_staging_ar[out_p]=buffer[i][vc];
+                                out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                          end else
+                          if(cred > 0 ) begin
+                                if(flit[14])
+                                  cur_in_port[out_p][vc]='1;
+                                else
+                                  cur_in_port[out_p][vc]=i;
+                            
+                                mark_in[i]=1;
+                                mark_out[out_p]=1;
+                          
+                                out_staging_ar[out_p]=buffer[i][vc];
+                                out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                cred=cred-1;
+                                credit[out_p][vc]=cred;
+                          end 
+                      end
+                  end
+              end
+          end
+      end
+      done=ret;
     end
   endtask
   
-  task init; 
-  begin
-  end
+  /** initializing, router parameters will be set to their initial value or input data. 
+      data[11:0]  -> credit_delay
+      data[17:12] -> numvcs 
+      data[24:18] -> num_out_ports
+      data[31:25] -> num_in_ports
+  **/
+  task init;
+    integer i,j;
+    begin 
+      credit_delay=data[11:0];
+      numvcs=data[17:12];
+      num_out_ports=data[24:18];
+      num_in_ports=data[24:18];
+      done=1;
+      for(i=0;i<`maxio;i=i+1) begin
+          in_staging[i]='0;
+          for(j=0; j<`maxvc; j=j+1) begin
+                buffer[i][j]='0;
+                cur_in_port[i][j]='0;
+                credit[i][j]='0;
+          end
+          head_crst[i]='0;
+          tail_crst[i]='0;
+      end
+    end
   endtask
   
   always @(posedge clk) begin
