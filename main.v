@@ -9,10 +9,10 @@ module main();
     /*******************************
     **   read_router reg          **
     *******************************/
-    reg [`max_router_bit-1      :0]     out_router    [0:`max_router-1][0:`maxio-1];
-    reg [`maxio_bit-1           :0]     out_port      [0:`max_router-1][0:`maxio-1];
+    reg [`RouterBitSize-1      :0]     out_router    [0:`RouterSize-1][0:`maxio-1];
+    reg [`maxio_bit-1           :0]     out_port      [0:`RouterSize-1][0:`maxio-1];
     reg clk;
-    reg [`maxvc_bit-1           :0]     num_vcs;
+    reg [`VcBitSize-1           :0]     num_vcs;
     reg [`max_cr_delay_bit-1    :0]     cr_delay;
     `include "read_router.v"
 
@@ -20,30 +20,30 @@ module main();
     /*******************************
     **   read_traffic reg         **
     *******************************/
-    reg [`MaxPortBitSize-1          :0]     routing_table [0:`max_router-1][0:`max_router-1]; //[src][dest] -> outport
-    reg [`DataBitSize-1             :0]     all_traffic [0:`max_router-1]; //[src][idx] -> Data
+    reg [`PortBitSize-1          :0]     routing_table [0:`RouterSize-1][0:`RouterSize-1]; //[src][dest] -> outport
+    reg [`DataBitSize-1             :0]     all_traffic [0:`RouterSize-1]; //[src][idx] -> Data
     `include "read_traffic.v"
 
     /*******************************
     **   Router instantiation     **
     *******************************/
-    wire [`maxio*`BufferBitSize-1   :0]     out_staging[0:`max_router-1];
-    wire [`BufferBitSize-1          :0]     out_staging_ar[0:`max_router-1][0:`maxio-1];
-    wire [`maxio*`BufferBitSize-1   :0]     out_cr_staging[0:`max_router-1];
-    wire [`BufferBitSize-1          :0]     out_cr_staging_ar[0:`max_router-1][0:`maxio-1];
-    wire                                    done[0:`max_router-1];
-    wire [`maxvc-1                  :0]     can_inject[0:`max_router-1];
-    wire [`maxio*`BufferBitSize-1   :0]     in_staging[0:`max_router-1];
-    reg [`BufferBitSize-1           :0]     in_staging_ar[0:`max_router-1][0:`maxio-1];
-    wire [`maxio*`BufferBitSize-1   :0]     in_cr_staging[0:`max_router-1];
-    reg [`BufferBitSize-1           :0]     in_cr_staging_ar[0:`max_router-1][0:`maxio-1];
-    reg [`data_size-1               :0]     data[0:`max_router-1];
+    wire [`maxio*`BufferBitSize-1   :0]     out_staging[0:`RouterSize-1];
+    wire [`BufferBitSize-1          :0]     out_staging_ar[0:`RouterSize-1][0:`maxio-1];
+    wire [`maxio*`BufferBitSize-1   :0]     out_cr_staging[0:`RouterSize-1];
+    wire [`BufferBitSize-1          :0]     out_cr_staging_ar[0:`RouterSize-1][0:`maxio-1];
+    wire                                    done[0:`RouterSize-1];
+    wire [`maxvc-1                  :0]     can_inject[0:`RouterSize-1];
+    wire [`maxio*`BufferBitSize-1   :0]     in_staging[0:`RouterSize-1];
+    reg [`BufferBitSize-1           :0]     in_staging_ar[0:`RouterSize-1][0:`maxio-1];
+    wire [`maxio*`BufferBitSize-1   :0]     in_cr_staging[0:`RouterSize-1];
+    reg [`BufferBitSize-1           :0]     in_cr_staging_ar[0:`RouterSize-1][0:`maxio-1];
+    reg [`data_size-1               :0]     data[0:`RouterSize-1];
     reg [`in_cycle_size-1           :0]     in_cycle;
-    reg [`op_size-1                 :0]     op[0:`max_router-1];
+    reg [`op_size-1                 :0]     op[0:`RouterSize-1];
 
     generate
     genvar i, j;
-    for(i=0; i<`max_router; i=i+1)
+    for(i=0; i<`RouterSize; i=i+1)
     begin:routers
         router r(out_staging[i], out_cr_staging[i], done[i], can_inject[i], op[i], in_staging[i], in_cr_staging[i], data[i], in_cycle, clk);
         for(j=0; j<`maxio; j=j+1)
@@ -60,7 +60,7 @@ module main();
 
     generate
     genvar i, j;
-    for(i=0; i<`max_router; i=i+1)
+    for(i=0; i<`RouterSize; i=i+1)
     begin:routers
         router r(out_staging[i], out_cr_staging[i], done[i], can_inject[i], op[i], in_staging[i], in_cr_staging[i], data[i], in_cycle, clk);
         for(j=0; j<`maxio; j=j+1)
@@ -77,7 +77,7 @@ module main();
 
     task load_staging;
         integer i, j;
-        for(i=0; i<`max_router; i=i+1)
+        for(i=0; i<`RouterSize; i=i+1)
         begin
             for(j=0; j<`maxio; j=j+1)
             begin
@@ -91,7 +91,7 @@ module main();
 
     task phase0;
         integer i, j;
-        for(i=0; i<`max_router; i=i+1)
+        for(i=0; i<`RouterSize; i=i+1)
         begin
             op[i] = `Phase0;
         end
@@ -99,7 +99,7 @@ module main();
 
     task phase1;
         integer i, j;
-        for(i=0; i<`max_router; i=i+1)
+        for(i=0; i<`RouterSize; i=i+1)
         begin
             op[i] = `Phase1;
         end

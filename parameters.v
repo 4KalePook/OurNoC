@@ -3,16 +3,10 @@
 `define debug 1
 `define input_buffer_size 1
 
-`define max_router 1024
-`define max_router_bit 10
 `define maxio 16
 `define maxio_bit 4
 `define maxvc 8
-`define maxvc_bit 3
 `define max_cycle_bit 20
-
-`define PortSize 6
-`define PortBitSize 3
 
 `define crbufsz 100
 
@@ -36,7 +30,11 @@
 `define Range(i,siz) siz*(i+1)-1:siz*i
 
 
-
+`define VcBitSize 5
+`define RouterBitSize 14
+`define RouterSize 1024
+`define PortSize 6
+`define PortBitSize 3
 /*******************************
 **      Struct Buffer        **
 *******************************/
