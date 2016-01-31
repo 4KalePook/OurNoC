@@ -58,4 +58,24 @@
 `define .DataVc [17:13]
 `define .DataNumFlit [12:3]
 
+
+/*******************************
+**      Struct RoutingTable           **
+*******************************/
+`define RTBitSize 32 //{out_port[6], dst[14]}
+`define .RTOutPort [19:14]
+`define .RTDst [13:0]
+
+
+/*******************************
+**      Struct Init           **
+*******************************/
+`define InitBitSize 32 //same as data {dst[num_in_ports[7]], num_out_ports[7], num_vc[6], credit_dlay[12]}
+`define .InitNumInPort [31:25]
+`define .InitNumOutPort [24:18]
+`define .InitNumVc [17:12]
+`define .InitCreditDelay [11:0]
+
+
+
 `endif
