@@ -1,16 +1,28 @@
 `include "parameters.v"
 `include "router.v"
 module main();
-    reg [`max_router_bit-1      :0]     out_router    [0:`max_router-1][0:`maxio-1];
-    reg [`maxio_bit-1           :0]     out_port      [0:`max_router-1][0:`maxio-1];
 
-    reg clk;
-    reg [`maxvc_bit-1           :0]     num_vcs;
-    reg [`max_cr_delay_bit-1    :0]     cr_delay;
+
     reg [`State_bit             :0]     state;
     reg [`State_bit             :0]     next_state;
 
+    /*******************************
+    **   read_router reg          **
+    *******************************/
+    reg [`max_router_bit-1      :0]     out_router    [0:`max_router-1][0:`maxio-1];
+    reg [`maxio_bit-1           :0]     out_port      [0:`max_router-1][0:`maxio-1];
+    reg clk;
+    reg [`maxvc_bit-1           :0]     num_vcs;
+    reg [`max_cr_delay_bit-1    :0]     cr_delay;
     `include "read_router.v"
+
+
+    /*******************************
+    **   read_traffic reg         **
+    *******************************/
+    reg [`Port_Num_Bit-1        :0]     routing_table [0:`max_router-1][0:`max_router-1];
+    reg [`flit_size-1           :0]     all_traffic [0:`max_router-1];
+    `include "read_traffic.v"
 
     /*******************************
     **   Router instantiation     **

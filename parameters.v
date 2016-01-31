@@ -11,6 +11,9 @@
 `define maxvc_bit 3
 `define max_cycle_bit 20
 
+`define Port_Num 6
+`define Port_Num_Bit 3
+
 `define crbufsz 100
 
 `define max_cr_delay 100
@@ -29,6 +32,12 @@
 `define Phase1 3
 `define LoadRt 4
 `define Init   5
+
+`define FlitSrc 42:33
+`define FlitDst 32:23
+`define FlitVc 22:20
+`define FlitNum 19:17
+// `define
 
 `define CopyStaging 0
 `define State_bit 3

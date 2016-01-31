@@ -3,7 +3,7 @@ task read_router;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
     integer i, j;
     begin
-        $readmemh("router_configuration.hex", mem);
+        $readmemh("router_configuration_file.hex", mem);
         i=2;
         cr_delay = mem[0];
         num_vcs = mem[1];
