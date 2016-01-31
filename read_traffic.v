@@ -20,10 +20,10 @@ task read_traffic;
             i+=2;
             for(j=0; j<mem[i-1]*4; j=j+3)
             begin
-                all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
-                all_traffic[mem[i+j]][FlitDst] = mem[i+j+1];
-                all_traffic[mem[i+j]][FlitVc] = mem[i+j+2];
-                all_traffic[mem[i+j]][FlitNum] = mem[i+j+3];
+                // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
+                all_traffic[mem[i+j]].DataDst = mem[i+j+1];
+                all_traffic[mem[i+j]].DataVc = mem[i+j+2];
+                all_traffic[mem[i+j]].DataNum = mem[i+j+3];
                 $display("flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
             end
             i = i+mem[i-1]*4;

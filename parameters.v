@@ -11,8 +11,8 @@
 `define maxvc_bit 3
 `define max_cycle_bit 20
 
-`define Port_Num 6
-`define Port_Num_Bit 3
+`define PortSize 6
+`define PortBitSize 3
 
 `define crbufsz 100
 
@@ -47,7 +47,7 @@
 /*******************************
 **      Struct Flit           **
 *******************************/
-`define FlitSize 16 //{dst[14], head[1], tail[1]}
+`define FlitBitSize 16 //{dst[14], head[1], tail[1]}
 `define .FlitDst [15:2]
 `define .FlitHead [1:1]
 `define .FlitTail [0:0]
