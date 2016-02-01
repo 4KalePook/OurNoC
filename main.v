@@ -81,7 +81,7 @@ module main();
     generate
     for(genvar_i=0; genvar_i<`RouterSize; genvar_i=genvar_i+1)
     begin:traffics
-        traffic t(clk, traffic_op[genvar_i], traffic_data[genvar_i], traffic_done[genvar_i], traffic_data[genvar_i], traffic_buffer[genvar_i]);
+        traffic t(clk, traffic_op[genvar_i], traffic_data[genvar_i], traffic_done[genvar_i], traffic_buffer[genvar_i]);
     end
     endgenerate
 
