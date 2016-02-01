@@ -90,6 +90,10 @@ module main();
         integer i, j;
         for(i=0; i<`RouterSize; i=i+1)
         begin
+            if(`debug)
+                $display("traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                    i, in_staging_ar[i][0] `BufferFull, in_staging_ar[i][0] `BufferVc, in_staging_ar[i][0] `FlitHead, in_staging_ar[i][0] `FlitTail, in_staging_ar[i][0] `FlitDst);
+
             if(can_inject[i][traffic_buffer[i] `BufferVc])
             begin
                 in_staging_ar[i][0] = traffic_buffer[i][0];
@@ -101,6 +105,10 @@ module main();
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
+                // if(`debug)
+                //     $display("traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                //         i, in_staging_ar[i][0] `BufferFull, in_staging_ar[i][0] `BufferVc, in_staging_ar[i][0] `FlitHead, in_staging_ar[i][0] `FlitTail, in_staging_ar[i][0] `FlitDst);
+
                 router_op[i] = `LoadStaging;
             end
         end
