@@ -11,7 +11,7 @@ task read_traffic;
         while(mem[i][0] !== 1'bx)
         begin
             routing_table[mem[i]][mem[i+1]] = mem[i+2]; // src:dest = out_port
-            if(`debug)
+            if(`debugRouter)
                 $display("routing table: %b %b %b", mem[i+0], mem[i+1], mem[i+2]);
             i=i+3;
         end
@@ -19,7 +19,7 @@ task read_traffic;
         while(mem[i][0] !== 1'bx)
         begin
             total_num_traffic[mem[i]] = mem[i+1];
-            if(`debug)
+            if(`debugTraffic)
                 $display("nod : %b %b", mem[i+0], mem[i+1]);
             i=i+2;
             k=0;
@@ -30,7 +30,7 @@ task read_traffic;
                 all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
                 all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
                 k=k+1;
-                if(`debug)
+                if(`debugTraffic)
                     $display("flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
             end
             i = i+mem[i-1]*4;

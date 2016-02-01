@@ -22,7 +22,7 @@ task read_router;
 
                 out_router[mem[i]][mem[i+1]] = mem[i+2];
                 out_port[mem[i]][mem[i+1]] = mem[i+3];
-                if(`debug)
+                if(`debugRouter)
                     $display("router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
                 i=i+4;
             end
