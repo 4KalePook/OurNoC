@@ -115,8 +115,9 @@ module main();
             router_data[i]`InitNumOutPort = num_out_ports[i];
             router_data[i]`InitNumVc = num_vcs;
             router_data[i]`InitCreditDelay = credit_delay;
-            if(debug)
-                $display("router[%b] ")
+            if(`debug)
+                $display("router[%b]: InitNumInPort:%b InitNumOutPort:%b InitNumVc:%b InitCreditDelay:%b",
+                    i, router_data[i]`InitNumInPort,router_data[i]`InitNumOutPort,router_data[i]`InitNumVc,router_data[i]`InitCreditDelay);
             router_op[i] = `Init;
         end
     endtask
