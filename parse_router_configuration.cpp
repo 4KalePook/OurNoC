@@ -24,10 +24,10 @@ void read_and_write_routers(char *router_fn) {
   while (fgets(str, 100, router_configuration_file) != NULL) {
     if ((ret = sscanf(str, "num_credit_delay_cycles=%d", &num_credit_delay_cycles)) == 1) {
       // set num_credit_delay_cycles
-      fprintf(pFile, "%x\n", num_credit_delay_cycles);
+      fprintf(pFile, "%x //credit_delay\n", num_credit_delay_cycles);
 
     } else if ((ret = sscanf(str, "num_vcs=%d", &num_vcs)) == 1) {
-      fprintf(pFile, "%x\n", num_vcs);
+      fprintf(pFile, "%x //num_vcs\n", num_vcs);
 
     } else if ((ret = sscanf(str, "%d:%d-%d:%d", &src_router, &src_out_port, &dest_router, &dest_in_port)) == 4) {
       fprintf(pFile, "%x %x %x %x\n", src_router, src_out_port, dest_router, dest_in_port);

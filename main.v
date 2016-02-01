@@ -115,6 +115,8 @@ module main();
             router_data[i]`InitNumOutPort = num_out_ports[i];
             router_data[i]`InitNumVc = num_vcs;
             router_data[i]`InitCreditDelay = credit_delay;
+            if(debug)
+                $display("router[%b] ")
             router_op[i] = `Init;
         end
     endtask
@@ -195,6 +197,7 @@ module main();
         begin
             router_op[i] <= `NOP;
         end
+        state = `Init;
     end
     always #1 clk=~clk;
 
@@ -203,11 +206,15 @@ module main();
             `NOP: ;
             `Init:
             begin
+                if(`debug)
+                    $display("main State: Init");
                 init_router;
                 next_state = `LoadRt;
             end
             `LoadRt:
             begin
+                if(`debug)
+                    $display("main State: LoadRt");
                 load_rt;
                 next_state = `LoadRt;
                 if(load_rt_stage >= `RouterSize)
@@ -215,27 +222,37 @@ module main();
             end
             `LoadStaging:
             begin
+                if(`debug)
+                    $display("main State: LoadStaging");
                 load_staging();
                 next_state = `Phase0;
             end
             `Phase0:
             begin
+                if(`debug)
+                    $display("main State: Phase0");
                 phase0();
                 next_state = `Phase1;
             end
             `Phase1:
             begin
+                if(`debug)
+                    $display("main State: Phase1");
                 phase1();
                 next_state = `LoadStaging;
                 in_cycle = in_cycle + 1;
             end
             `InitTraffic:
             begin
+                if(`debug)
+                    $display("main State: InitTraffic");
                 init_traffic();
                 next_state = `FillTraffic;
             end
             `FillTraffic:
             begin
+                if(`debug)
+                    $display("main State: FillTraffic");
                 done_fill_traffic = 0;
                 fill_traffic();
                 if(done_fill_traffic == 1'b1)
