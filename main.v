@@ -91,7 +91,7 @@ module main();
         for(i=0; i<`RouterSize; i=i+1)
         begin
             if(`debug)
-                $display("  traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                $display("  traffic_buffer[%b]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                     i, traffic_buffer[i]  `BufferFull, traffic_buffer[i]  `BufferVc, traffic_buffer[i]  `FlitHead, traffic_buffer[i]  `FlitTail, traffic_buffer[i] `FlitDst);
 
             if(can_inject[i][traffic_buffer[i] `BufferVc])
