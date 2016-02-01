@@ -18,7 +18,7 @@ task read_traffic;
             total_num_traffic[mem[i]] = mem[i+1];
             $display("nod : %b %b", mem[i+0], mem[i+1]);
             i=i+2;
-            for(j=0; j<mem[i-1]*4; j=j+3)
+            for(j=0; j<mem[i-1]*4; j=j+4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
                 all_traffic[mem[i+j]][j]`DataDst = mem[i+j+1];
