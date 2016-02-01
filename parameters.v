@@ -38,6 +38,7 @@
 `define PortSize 6
 `define PortBitSize 7 //hooman value!!
 `define CreditDelayBitSize 12 //hooman value!!!
+`define TotalNumTrafficBitSize 10
 /*******************************
 **      Struct Buffer        **
 *******************************/
@@ -79,6 +80,12 @@
 `define InitNumVc [17:12]
 `define InitCreditDelay [11:0]
 
+
+/*******************************
+**      Struct InitTraffic    **
+*******************************/
+`define InitTrafficBitSize 32 //{total_num_traffic[10]}
+`define InitTrafficTotalNumTraffic [31:22]
 
 
 `endif
