@@ -31,34 +31,38 @@
 
 `define MaxTrafficBitSize 10 //TODO: check
 `define MaxCycleBitSize 20
-`define VcBitSize 5
-`define NumVcBitSize 6 //should one bit more 16vc for example
+`define VcBitSize 4
+`define NumVcBitSize 5 //should one bit more 16vc for example
 `define RouterBitSize 14
 `define RouterSize 1024
 `define PortSize 6
 `define PortBitSize 7 //hooman value!!
 `define CreditDelayBitSize 12 //hooman value!!!
+`define CreditBitSize 8
+`define IndBitSize 16
 /*******************************
 **      Struct Buffer        **
 *******************************/
-`define BufferBitSize 22 //{full[1],vc[5],flit[16]}
+`define BufferBitSize 22 //{full[1],vc[4],flit[16]/TimeStamp[17]}
 `define BufferFull [21:21]
-`define BufferVc [20:16]
+`define BufferVc [20:17]
+`define BufferFlit [15:0]
+`define BufferTimeStamp [16:0]
 
 /*******************************
 **      Struct Flit           **
 *******************************/
 `define FlitBitSize 16 //{dst[14], head[1], tail[1]}
-`define FlitDst [15:2]
-`define FlitHead [1:1]
-`define FlitTail [0:0]
+`define FlitDst [13:0]
+`define FlitHead [15:15]
+`define FlitTail [14:14]
 
 /*******************************
 **      Struct Data           **
 *******************************/
 `define DataBitSize 32 //{dst[14], vc[5], num_flit[10]}
 `define DataDst [31:18]
-`define DataVc [17:13]
+`define DataVc [16:13]
 `define DataNumFlit [12:3]
 
 
@@ -76,7 +80,7 @@
 `define InitBitSize 32 //same as data {dst[num_in_ports[7]], num_out_ports[7], num_vc[6], credit_dlay[12]}
 `define InitNumInPort [31:25]
 `define InitNumOutPort [24:18]
-`define InitNumVc [17:12]
+`define InitNumVc [16:12]
 `define InitCreditDelay [11:0]
 
 
