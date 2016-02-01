@@ -5,15 +5,16 @@
 `define	NumPackets  1024
 `define DestSize 14
 `define NumFlit 10
+`define InitTrafficTotalNumTraffic [31:22]
   /*******************************
   **        packet  module         **
   *******************************/
 module packet(dest,vc,num_flits,dest_init,vc_init,num_flits_init);
-input[9:0] dest_init;
+input[`DestSize-1:0] dest_init;
 input [`VcBitSize-1:0] vc_init;
 input[`NumFlit-1:0] num_flits_init;
 
-output reg[9:0] dest;
+output reg[`DestSize-1:0] dest;
 output reg[`VcBitSize-1:0]vc;
 output reg[`NumFlit-1:0]num_flits;
 
@@ -39,13 +40,13 @@ module traffic(clk,op, data, done, buffer);
 
  // reg [`BufferBitSize-1 :0] buffer;
   
-  reg [9:0] head,count;		//؟؟
-  reg [9:0] num_packets_in_buffer;
+  reg [9:0] head,count;		//??
+  reg [9:0] num_packets_in_buffer,num_packets_in_buffer_new;
 
-  reg [`NumFlit-1:0] num_flits_left_in_current_packet;
-  reg [9:0] num_packets_sent;
+  reg [`NumFlit-1:0] num_flits_left_in_current_packet,num_flits_left_in_current_packet_new;
+  reg [9:0] num_packets_sent,num_packets_sent_new;
 
-  reg cur_flit_invalid_p;
+  reg cur_flit_invalid_p,cur_flit_invalid_p_new;
   reg [`FlitBitSize-1:0] flit;
   reg [9:0] total_num_packets_to_send; //??
   wire [`DestSize*`NumPackets-1:0] dest;
@@ -68,27 +69,28 @@ module traffic(clk,op, data, done, buffer);
   always @(op or data)
   begin
   buffer `BufferFull = (num_packets_sent < total_num_packets_to_send);
- 
+ num_flits_left_in_current_packet_new = num_flits_left_in_current_packet;
+ cur_flit_invalid_p_new = cur_flit_invalid_p;
    if (op == `Init)
-  num_flits_left_in_current_packet=0;
+  num_flits_left_in_current_packet_new=0;
   else if(op == `Dequeue )
   begin
   if (cur_flit_invalid_p) 
   begin
     if (num_flits_left_in_current_packet == 0) 
-      num_flits_left_in_current_packet = num_flits[head*`NumFlit +: `NumFlit];
+      num_flits_left_in_current_packet_new = num_flits[head*`NumFlit +: `NumFlit];
   end
   else
-  num_flits_left_in_current_packet = num_flits_left_in_current_packet-1;
+  num_flits_left_in_current_packet_new = num_flits_left_in_current_packet-1;
   end
    
  if(op == `Init)
- cur_flit_invalid_p = 1;
+ cur_flit_invalid_p_new = 1;
  else if (op == `Dequeue)
  if (cur_flit_invalid_p) 
-    cur_flit_invalid_p = 0;
+    cur_flit_invalid_p_new = 0;
  else
- cur_flit_invalid_p = 1;
+ cur_flit_invalid_p_new = 1;
  
   end
 
@@ -100,6 +102,8 @@ module traffic(clk,op, data, done, buffer);
     begin
     
 	buffer `BufferVc = vc[head*`VcBitSize +: `VcBitSize ];
+	//flit=16'b0;
+	//buffer[20:0] = 21'b0;
 	if (cur_flit_invalid_p) 
 	begin
     if (num_flits_left_in_current_packet == 0) 
@@ -120,7 +124,7 @@ module traffic(clk,op, data, done, buffer);
 		if(head >= num_packets_in_buffer)begin
 			head=head-num_packets_in_buffer;
 		end
-		num_packets_sent = num_packets_sent + 1 ;
+		num_packets_sent_new = num_packets_sent + 1 ;
 		end
     end
   endtask
@@ -133,8 +137,8 @@ module traffic(clk,op, data, done, buffer);
     task init;
     begin 
 	num_packets_in_buffer = 0;
-	num_packets_sent = 0;
-	total_num_packets_to_send = data[9:0];//??
+	num_packets_sent_new = 0;
+	total_num_packets_to_send = data `InitTrafficTotalNumTraffic;
 	head =0;
 
 	count=0;
@@ -150,7 +154,7 @@ module traffic(clk,op, data, done, buffer);
 	dest_init[count*`DestSize +: `DestSize] = data `DataDst;
 	vc_init[count*`VcBitSize +: `VcBitSize]= data `DataVc;
 	num_flits_init[count * `NumFlit +: `NumFlit ]= data `DataNumFlit;
-	
+	num_packets_in_buffer_new = num_packets_in_buffer + 1;
 	count=count+1;
 	end
 	endtask
@@ -160,6 +164,12 @@ module traffic(clk,op, data, done, buffer);
         `Fill: fill();
         `Dequeue: dequeue();
         `Init: init();
+		default: ;
       endcase  
+	  num_flits_left_in_current_packet = num_flits_left_in_current_packet_new;
+	  num_packets_sent = num_packets_sent_new;
+	  num_packets_in_buffer = num_packets_in_buffer_new;
+	  cur_flit_invalid_p = cur_flit_invalid_p_new;
   end
 endmodule
+
