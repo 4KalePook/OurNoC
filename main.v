@@ -2,7 +2,7 @@
 `define FillTraffic 7 //internal state
 `include "parameters.v"
 `include "router.v"
-`include "traffic.h"
+`include "traffic.v"
 module main();
 
 
@@ -30,9 +30,9 @@ module main();
     **   read_traffic reg         **
     *******************************/
     reg [`PortBitSize-1         :0]         routing_table [0:`RouterSize-1][0:`RouterSize-1]; //[src][dest] -> outport
-    reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1]; //[src][idx] -> Data
+    reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1][0:`TotalNumTrafficSize-1]; //[src][idx] -> Data
     reg [`MaxCycleBitSize-1     :0]         max_cycle;
-    reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1][0:`TotalNumTrafficSize-1];
+    reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1];
     `include "read_traffic.v"
 
     /*******************************
@@ -72,7 +72,7 @@ module main();
     *******************************/
 
     wire [`BufferBitSize-1          :0]     traffic_buffer[0:`RouterSize-1];
-    wire                                    traffc_done [0:`RouterSize-1];
+    wire                                    traffic_done [0:`RouterSize-1];
     reg  [`op_size-1                :0]     traffic_op [0:`RouterSize-1];
     reg  [`DataBitSize-1            :0]     traffic_data[0:`RouterSize-1];
 
@@ -167,7 +167,7 @@ module main();
                 total_num_traffic[i] = total_num_traffic[i] - 1;
             end
             else
-                traffic_op = `NOP;
+                traffic_op[i] = `NOP;
         end
     endtask
 
@@ -215,10 +215,10 @@ module main();
                 next_state = `LoadStaging;
                 in_cycle = in_cycle + 1;
             end
-            `InitRouter:
+            `InitTraffic:
             begin
-                init_router();
-                next_state = `FillRouter;
+                init_traffic();
+                next_state = `FillTraffic;
             end
             `FillTraffic:
             begin
