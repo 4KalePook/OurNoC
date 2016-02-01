@@ -1,7 +1,5 @@
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
-`define TrafficToRouter1 8 //internal state
-`define TrafficToRouter2 9 //internal state
 `define State_bit 4
 `include "parameters.v"
 `include "router.v"
@@ -92,6 +90,13 @@ module main();
         integer i, j;
         for(i=0; i<`RouterSize; i=i+1)
         begin
+            if(can_inject[i][traffic_buffer[i] `BufferVc])
+            begin
+                in_staging_ar[i][0] = traffic_buffer[i][0];
+                traffic_op[i] = `Dequeue;
+            end
+            else
+                traffic_op[i] = `NOP;
             for(j=0; j<`maxio; j=j+1)
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
@@ -179,25 +184,6 @@ module main();
     endtask
 
 
-    task traffic_to_router_1;
-    begin
-        for(i=0; i<`RouterSize; i=i+1)
-        begin
-            traffic_op[i] = `Dequeue;
-        end
-    end
-    endtask
-
-    task traffic_to_router_2;
-    begin
-        for(i=0; i<`RouterSize; i=i+1)
-        begin
-            router_op[i] = `Dequeue;
-            in_staging_ar[i][0] = traffic_buffer[i][0];
-        end
-    end
-    endtask
-
     initial
     begin
         read_router();
@@ -256,16 +242,6 @@ module main();
                     next_state = `LoadStaging;
                 else
                     next_state = `FillTraffic;
-            end
-            `TrafficToRouter1:
-            begin
-                traffic_to_router_1();
-                next_state = `TrafficToRouter2;
-            end
-            `TrafficToRouter2:
-            begin
-                TrafficToRouter2();
-                //TODO: ???
             end
         endcase
 
