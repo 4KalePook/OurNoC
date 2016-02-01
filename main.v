@@ -1,5 +1,8 @@
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
+`define TrafficToRouter1 8 //internal state
+`define TrafficToRouter2 9 //internal state
+`define State_bit 4
 `include "parameters.v"
 `include "router.v"
 `include "traffic.v"
@@ -11,6 +14,7 @@ module main();
     reg [`RouterBitSize-1       :0]       load_rt_stage;
     genvar genvar_i, genvar_j;
     reg done_fill_traffic;
+    integer cnt_fill_traffic;
     integer i, j;
     reg clk;
 
@@ -155,13 +159,14 @@ module main();
 
 
     task fill_traffic;
+    begin
         for(i=0; i<`RouterSize; i=i+1)
         begin
             if(total_num_traffic[i] > 0)
             begin
-                traffic_data[i] `DataDst = all_traffic[i][0]`DataDst;
-                traffic_data[i] `DataVc = all_traffic[i][0]`DataVc;
-                traffic_data[i] `DataNumFlit = all_traffic[i][0]`DataNumFlit;
+                traffic_data[i] `DataDst = all_traffic[i][cnt_fill_traffic]`DataDst;
+                traffic_data[i] `DataVc = all_traffic[i][cnt_fill_traffic]`DataVc;
+                traffic_data[i] `DataNumFlit = all_traffic[i][cnt_fill_traffic]`DataNumFlit;
                 traffic_op[i] = `Fill;
                 done_fill_traffic = 1'b1;
                 total_num_traffic[i] = total_num_traffic[i] - 1;
@@ -169,6 +174,28 @@ module main();
             else
                 traffic_op[i] = `NOP;
         end
+        cnt_fill_traffic = cnt_fill_traffic + 1;
+    end
+    endtask
+
+
+    task traffic_to_router_1;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            traffic_op[i] = `Dequeue;
+        end
+    end
+    endtask
+
+    task traffic_to_router_2;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            router_op[i] = `Dequeue;
+            in_staging_ar[i][0] = traffic_buffer[i][0];
+        end
+    end
     endtask
 
     initial
@@ -177,6 +204,7 @@ module main();
         read_traffic();
         clk <= 0;
         in_cycle <= 0;
+        cnt_fill_traffic = 0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
             router_op[i] <= `NOP;
@@ -228,6 +256,16 @@ module main();
                     next_state = `LoadStaging;
                 else
                     next_state = `FillTraffic;
+            end
+            `TrafficToRouter1:
+            begin
+                traffic_to_router_1();
+                next_state = `TrafficToRouter2;
+            end
+            `TrafficToRouter2:
+            begin
+                TrafficToRouter2();
+                //TODO: ???
             end
         endcase
 
