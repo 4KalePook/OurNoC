@@ -105,9 +105,12 @@ module main();
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
-                // if(`debug)
-                //     $display("traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                //         i, in_staging_ar[i][0] `BufferFull, in_staging_ar[i][0] `BufferVc, in_staging_ar[i][0] `FlitHead, in_staging_ar[i][0] `FlitTail, in_staging_ar[i][0] `FlitDst);
+                if(`debug)
+                    $display("  out_staging_ar[%b][%b]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                        i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                if(`debug)
+                    $display("  out_cr_staging_ar[%b][%b]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                        out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
 
                 router_op[i] = `LoadStaging;
             end
