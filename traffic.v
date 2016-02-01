@@ -67,7 +67,7 @@ module traffic(clk,op, data, done, buffer);
   ********************************************/
   always @(op or data)
   begin
-  buffer .BufferFull = (num_packets_sent < total_num_packets_to_send);
+  buffer `BufferFull = (num_packets_sent < total_num_packets_to_send);
  
    if (op == `Init)
   num_flits_left_in_current_packet=0;
@@ -99,19 +99,19 @@ module traffic(clk,op, data, done, buffer);
 
     begin
     
-	buffer .BufferVc = vc[head*`VcBitSize +: `VcBitSize ];
+	buffer `BufferVc = vc[head*`VcBitSize +: `VcBitSize ];
 	if (cur_flit_invalid_p) 
 	begin
     if (num_flits_left_in_current_packet == 0) 
 	begin	// create new head flit
-      flit .FlitDst = dest[head*`DestSize +: `DestSize];
-      flit .FlitHead = 1;
+      flit `FlitDst = dest[head*`DestSize +: `DestSize];
+      flit `FlitHead = 1;
     end 
 	else 
 	begin
-      flit .FlitHead = 0;
+      flit `FlitHead = 0;
     end
-    flit .FlitTail = (num_flits_left_in_current_packet == 1) ? 1 : 0; 
+    flit `FlitTail = (num_flits_left_in_current_packet == 1) ? 1 : 0; 
   end
   buffer [`FlitBitSize:0] = flit;    
 		if (num_flits_left_in_current_packet == 0 )
@@ -147,9 +147,9 @@ module traffic(clk,op, data, done, buffer);
 	task fill;
 	begin
 	
-	dest_init[count*`DestSize +: `DestSize] = data DataDst;
-	vc_init[count*`VcBitSize +: `VcBitSize]= data DataVc;
-	num_flits_init[count * `NumFlit +: `NumFlit ]= data DataNumFlit;
+	dest_init[count*`DestSize +: `DestSize] = data `DataDst;
+	vc_init[count*`VcBitSize +: `VcBitSize]= data `DataVc;
+	num_flits_init[count * `NumFlit +: `NumFlit ]= data `DataNumFlit;
 	
 	count=count+1;
 	end
