@@ -1,6 +1,11 @@
+`define InitTraffic 6 //internal state
+`define FillTraffic 7 //internal state
+`define TrafficToRouter1 8 //internal state
+`define TrafficToRouter2 9 //internal state
+`define State_bit 4
 `include "parameters.v"
 `include "router.v"
-`include "traffic.h"
+`include "traffic.v"
 module main();
 
 
@@ -8,6 +13,8 @@ module main();
     reg [`State_bit-1             :0]     next_state;
     reg [`RouterBitSize-1       :0]       load_rt_stage;
     genvar genvar_i, genvar_j;
+    reg done_fill_traffic;
+    integer cnt_fill_traffic;
     integer i, j;
     reg clk;
 
@@ -27,9 +34,9 @@ module main();
     **   read_traffic reg         **
     *******************************/
     reg [`PortBitSize-1         :0]         routing_table [0:`RouterSize-1][0:`RouterSize-1]; //[src][dest] -> outport
-    reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1]; //[src][idx] -> Data
+    reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1][0:`TotalNumTrafficSize-1]; //[src][idx] -> Data
     reg [`MaxCycleBitSize-1     :0]         max_cycle;
-    reg [`MaxTrafficBitSize-1      :0]      router_traffic_size[0:`RouterSize-1];
+    reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1];
     `include "read_traffic.v"
 
     /*******************************
@@ -69,22 +76,14 @@ module main();
     *******************************/
 
     wire [`BufferBitSize-1          :0]     traffic_buffer[0:`RouterSize-1];
-    wire                                    traffc_done [0:`RouterSize-1];
+    wire                                    traffic_done [0:`RouterSize-1];
     reg  [`op_size-1                :0]     traffic_op [0:`RouterSize-1];
     reg  [`DataBitSize-1            :0]     traffic_data[0:`RouterSize-1];
-    module traffic(clk,op, data, done, buffer);
 
     generate
     for(genvar_i=0; genvar_i<`RouterSize; genvar_i=genvar_i+1)
     begin:traffics
-        traffic t(clk, op, data, 
-        for(genvar_j=0; genvar_j<`maxio; genvar_j=genvar_j+1)
-        begin
-            assign out_staging_ar[genvar_i][genvar_j] = out_staging[genvar_i][`Range(genvar_j,`BufferBitSize)];
-            assign in_staging[genvar_i][`Range(genvar_j,`BufferBitSize)] = in_staging_ar[genvar_i][genvar_j];
-            assign out_cr_staging_ar[genvar_i][genvar_j] = out_cr_staging[genvar_i][`Range(genvar_j,`BufferBitSize)];
-            assign in_cr_staging[genvar_i][`Range(genvar_j,`BufferBitSize)] = in_cr_staging_ar[genvar_i][genvar_j];
-        end
+        traffic t(clk, traffic_op[genvar_i], traffic_data[genvar_i], traffic_done[genvar_i], traffic_data[genvar_i], traffic_buffer[genvar_i]);
     end
     endgenerate
 
@@ -149,12 +148,63 @@ module main();
         end
     endtask
 
+
+    task init_traffic;
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            traffic_data[i] `InitTrafficTotalNumTraffic = total_num_traffic[i];
+            traffic_op[i] = `Init;
+        end
+    endtask
+
+
+    task fill_traffic;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            if(total_num_traffic[i] > 0)
+            begin
+                traffic_data[i] `DataDst = all_traffic[i][cnt_fill_traffic]`DataDst;
+                traffic_data[i] `DataVc = all_traffic[i][cnt_fill_traffic]`DataVc;
+                traffic_data[i] `DataNumFlit = all_traffic[i][cnt_fill_traffic]`DataNumFlit;
+                traffic_op[i] = `Fill;
+                done_fill_traffic = 1'b1;
+                total_num_traffic[i] = total_num_traffic[i] - 1;
+            end
+            else
+                traffic_op[i] = `NOP;
+        end
+        cnt_fill_traffic = cnt_fill_traffic + 1;
+    end
+    endtask
+
+
+    task traffic_to_router_1;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            traffic_op[i] = `Dequeue;
+        end
+    end
+    endtask
+
+    task traffic_to_router_2;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            router_op[i] = `Dequeue;
+            in_staging_ar[i][0] = traffic_buffer[i][0];
+        end
+    end
+    endtask
+
     initial
     begin
         read_router();
         read_traffic();
         clk <= 0;
         in_cycle <= 0;
+        cnt_fill_traffic = 0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
             router_op[i] <= `NOP;
@@ -192,6 +242,30 @@ module main();
                 phase1();
                 next_state = `LoadStaging;
                 in_cycle = in_cycle + 1;
+            end
+            `InitTraffic:
+            begin
+                init_traffic();
+                next_state = `FillTraffic;
+            end
+            `FillTraffic:
+            begin
+                done_fill_traffic = 0;
+                fill_traffic();
+                if(done_fill_traffic == 1'b1)
+                    next_state = `LoadStaging;
+                else
+                    next_state = `FillTraffic;
+            end
+            `TrafficToRouter1:
+            begin
+                traffic_to_router_1();
+                next_state = `TrafficToRouter2;
+            end
+            `TrafficToRouter2:
+            begin
+                TrafficToRouter2();
+                //TODO: ???
             end
         endcase
 

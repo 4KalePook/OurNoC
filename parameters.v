@@ -26,10 +26,8 @@
 `define Init   5
 
 `define CopyStaging 0
-`define State_bit 3
 `define Range(i,siz) siz*(i+1)-1:siz*i
 
-`define MaxTrafficBitSize 10 //TODO: check
 `define MaxCycleBitSize 20
 `define VcBitSize 4
 `define NumVcBitSize 5 //should one bit more 16vc for example
@@ -39,6 +37,7 @@
 `define PortBitSize 7 //hooman value!!
 `define CreditDelayBitSize 12 //hooman value!!!
 `define TotalNumTrafficBitSize 10
+`define TotalNumTrafficSize 100 //TODO: check
 `define CreditBitSize 8
 `define IndBitSize 16
 
