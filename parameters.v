@@ -32,7 +32,7 @@
 `define VcBitSize 4
 `define NumVcBitSize 5 //should one bit more 16vc for example
 `define RouterBitSize 14
-`define RouterSize 1024
+`define RouterSize 10
 `define PortSize 6
 `define PortBitSize 7 //hooman value!!
 `define CreditDelayBitSize 12 //hooman value!!!
