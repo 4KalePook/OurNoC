@@ -132,6 +132,10 @@ module main();
                 router_data[i]`RTOutPort = routing_table[i][load_rt_stage];
                 router_data[i]`RTDst = load_rt_stage;
                 router_op[i] = `LoadRt;
+                if(`debug)
+                    $display("router[%b]: RTOutPort:%b RTDst:%b",
+                        i, router_data[i]`RTOutPort,router_data[i]`RTDst);
+
             end
             else
                 router_op[i] = `NOP;
@@ -194,6 +198,7 @@ module main();
         clk <= 0;
         in_cycle <= 0;
         cnt_fill_traffic = 0;
+        load_rt_stage = 0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
             router_op[i] <= `NOP;
