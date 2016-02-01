@@ -26,7 +26,6 @@
 `define Init   5
 
 `define CopyStaging 0
-`define State_bit 3
 `define Range(i,siz) siz*(i+1)-1:siz*i
 
 `define MaxCycleBitSize 20
