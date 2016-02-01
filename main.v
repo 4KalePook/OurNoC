@@ -91,7 +91,7 @@ module main();
         for(i=0; i<`RouterSize; i=i+1)
         begin
             if(`debug)
-                $display("traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                $display("  traffic_buffer[%b][0]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                     i, in_staging_ar[i][0] `BufferFull, in_staging_ar[i][0] `BufferVc, in_staging_ar[i][0] `FlitHead, in_staging_ar[i][0] `FlitTail, in_staging_ar[i][0] `FlitDst);
 
             if(can_inject[i][traffic_buffer[i] `BufferVc])
@@ -124,7 +124,7 @@ module main();
             router_data[i]`InitNumVc = num_vcs;
             router_data[i]`InitCreditDelay = credit_delay;
             if(`debug)
-                $display("router[%b]: InitNumInPort:%b InitNumOutPort:%b InitNumVc:%b InitCreditDelay:%b",
+                $display("  router[%b]: InitNumInPort:%b InitNumOutPort:%b InitNumVc:%b InitCreditDelay:%b",
                     i, router_data[i]`InitNumInPort,router_data[i]`InitNumOutPort,router_data[i]`InitNumVc,router_data[i]`InitCreditDelay);
             router_op[i] = `Init;
         end
@@ -141,7 +141,7 @@ module main();
                 router_data[i]`RTDst = load_rt_stage;
                 router_op[i] = `LoadRt;
                 if(`debug)
-                    $display("router[%b]: RTOutPort:%b RTDst:%b",
+                    $display("  router[%b]: RTOutPort:%b RTDst:%b",
                         i, router_data[i]`RTOutPort,router_data[i]`RTDst);
 
             end
@@ -175,7 +175,7 @@ module main();
             traffic_data[i] `InitTrafficTotalNumTraffic = total_num_traffic[i];
             traffic_op[i] = `Init;
             if(`debug)
-                $display("traffic[%b]: InitTrafficTotalNumTraffic:%b",
+                $display("  traffic[%b]: InitTrafficTotalNumTraffic:%b",
                     i, traffic_data[i] `InitTrafficTotalNumTraffic);
         end
     endtask
@@ -194,7 +194,7 @@ module main();
                 done_fill_traffic = 1'b1;
                 total_num_traffic[i] = total_num_traffic[i] - 1;
                 if(`debug)
-                    $display("traffic[%b]: DataDst: %b DataVc: %b DataNumFlit: %b",
+                    $display("  traffic[%b]: DataDst: %b DataVc: %b DataNumFlit: %b",
                         i, traffic_data[i] `DataDst, traffic_data[i] `DataVc, traffic_data[i] `DataNumFlit);
             end
             else
