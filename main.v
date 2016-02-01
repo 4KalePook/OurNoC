@@ -166,6 +166,9 @@ module main();
         begin
             traffic_data[i] `InitTrafficTotalNumTraffic = total_num_traffic[i];
             traffic_op[i] = `Init;
+            if(`debug)
+                $display("traffic[%b]: InitTrafficTotalNumTraffic:%b",
+                    i, traffic_data[i] `InitTrafficTotalNumTraffic);
         end
     endtask
 
@@ -182,6 +185,9 @@ module main();
                 traffic_op[i] = `Fill;
                 done_fill_traffic = 1'b1;
                 total_num_traffic[i] = total_num_traffic[i] - 1;
+                if(`debug)
+                    $display("traffic[%b]: DataDst: %b DataVc: %b DataNumFlit: %b",
+                        i, traffic_data[i] `DataDst, traffic_data[i] `DataVc, traffic_data[i] `DataNumFlit);
             end
             else
                 traffic_op[i] = `NOP;
@@ -203,7 +209,7 @@ module main();
         begin
             router_op[i] <= `NOP;
         end
-        state = `Init;
+        state = `InitTraffic;
     end
     always #1 clk=~clk;
 
@@ -261,8 +267,8 @@ module main();
                     $display("main State: FillTraffic");
                 done_fill_traffic = 0;
                 fill_traffic();
-                if(done_fill_traffic == 1'b1)
-                    next_state = `LoadStaging;
+                if(done_fill_traffic == 1'b0)
+                    next_state = `Init;
                 else
                     next_state = `FillTraffic;
             end

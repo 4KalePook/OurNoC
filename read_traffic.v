@@ -1,8 +1,10 @@
 `include "parameters.v"
 task read_traffic;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
-    integer i, j;
+    integer i, j, k;
     begin
+        for(i=0; i<`RouterSize; i=i+1)
+            total_num_traffic[i] = 0;
         $readmemh("traffic_configuration_file.hex", mem);
         i=1;
         max_cycle = mem[0];
@@ -20,12 +22,14 @@ task read_traffic;
             if(`debug)
                 $display("nod : %b %b", mem[i+0], mem[i+1]);
             i=i+2;
+            k=0;
             for(j=0; j<mem[i-1]*4; j=j+4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
-                all_traffic[mem[i+j]][j]`DataDst = mem[i+j+1];
-                all_traffic[mem[i+j]][j]`DataVc = mem[i+j+2];
-                all_traffic[mem[i+j]][j]`DataNumFlit = mem[i+j+3];
+                all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
+                all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
+                all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
+                k=k+1;
                 if(`debug)
                     $display("flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
             end
