@@ -230,14 +230,14 @@ module main();
             `Init:
             begin
                 if(`debug)
-                    $display("main State: Init");
+                    $display("***main State: Init***");
                 init_router;
                 next_state = `LoadRt;
             end
             `LoadRt:
             begin
                 if(`debug)
-                    $display("main State: LoadRt");
+                    $display("***main State: LoadRt***");
                 load_rt;
                 next_state = `LoadRt;
                 if(load_rt_stage >= `RouterSize)
@@ -246,21 +246,21 @@ module main();
             `LoadStaging:
             begin
                 if(`debug)
-                    $display("main State: LoadStaging");
+                    $display("***main State: LoadStaging***");
                 load_staging();
                 next_state = `Phase0;
             end
             `Phase0:
             begin
                 if(`debug)
-                    $display("main State: Phase0");
+                    $display("***main State: Phase0***");
                 phase0();
                 next_state = `Phase1;
             end
             `Phase1:
             begin
                 if(`debug)
-                    $display("main State: Phase1");
+                    $display("***main State: Phase1***");
                 phase1();
                 next_state = `LoadStaging;
                 in_cycle = in_cycle + 1;
@@ -268,14 +268,14 @@ module main();
             `InitTraffic:
             begin
                 if(`debug)
-                    $display("main State: InitTraffic");
+                    $display("***main State: InitTraffic***");
                 init_traffic();
                 next_state = `FillTraffic;
             end
             `FillTraffic:
             begin
                 if(`debug)
-                    $display("main State: FillTraffic");
+                    $display("***main State: FillTraffic***");
                 done_fill_traffic = 0;
                 fill_traffic();
                 if(done_fill_traffic == 1'b0)

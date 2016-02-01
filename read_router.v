@@ -3,6 +3,8 @@ task read_router;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
     integer i, j;
     begin
+        if(`debugRouter)
+            $display("Read router connection from file:");
         for(i=0; i<`RouterSize; i=i+1)
         begin
             num_in_ports[i] = 0;
@@ -23,7 +25,7 @@ task read_router;
                 out_router[mem[i]][mem[i+1]] = mem[i+2];
                 out_port[mem[i]][mem[i+1]] = mem[i+3];
                 if(`debugRouter)
-                    $display("router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
+                    $display("  router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
                 i=i+4;
             end
         end
