@@ -142,7 +142,11 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                 if(`debug)
                     $display("Error input staging is full\n");
             end
+            if(`debugRouter && i<5)
+                $display("In Router: in_staging[%d]: %b", i, in_staging[i]);
             in_staging[i]=in_staging_pl_ar[i];
+            if(`debugRouter && i<5)
+                $display("In Router: in_staging_pl_ar[%d]: %b", i, in_staging_pl_ar[i]);
         end
         for(i=1;i<`maxio;i=i+1)
         begin

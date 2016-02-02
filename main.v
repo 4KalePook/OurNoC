@@ -15,8 +15,6 @@
 
 
 
-`define debugRouter 1
-`define debugTraffic 1
 
 `define Init   5
 `define Fill   6
@@ -197,7 +195,7 @@ module main();
 
             if(can_inject[i][traffic_buffer[i] `BufferVc])
             begin
-                in_staging_ar[i][0] = traffic_buffer[i][0];
+                in_staging_ar[i][0] = traffic_buffer[i];
                 traffic_op[i] <= `Dequeue;
                 $display("raft too");
             end
