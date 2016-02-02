@@ -325,11 +325,9 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
         `Init: init(data);
       endcase
   end
-<<<<<<< HEAD
   /*
 =======
 
->>>>>>> 4a71c5852b0a15b2a06c7f62e68dbfadff873348
   reg[31:0] in_data;
   initial begin
 

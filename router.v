@@ -301,7 +301,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
 //      numvcs=data`InitNumVc;
 //      num_out_ports=data`InitNumOutPort;
 //      num_in_ports=data`InitNumInPort;
-      done=0;
+      done=1;
       for(i=0;i<`maxio;i=i+1) begin
           in_staging[i]='b0;
           for(j=0; j<`maxvc; j=j+1) begin
