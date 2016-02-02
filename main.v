@@ -1,9 +1,21 @@
+
+
+`include "parameters.v"
+
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
 `define State_bit 4
-`include "parameters.v"
-`include "router.v"
-`include "traffic.v"
+`define debugRouter 1
+`define debugTraffic 1
+
+`define Init   5
+`define Fill   6
+`define Dequeue   7
+`define	NumPackets  1024
+`define DestSize 14
+`define NumFlit 10
+`define InitTrafficTotalNumTraffic [31:22]
+
 module main();
 
 
@@ -25,7 +37,6 @@ module main();
     reg [`CreditDelayBitSize-1    :0]        credit_delay;
     reg [`PortBitSize-1         :0]     num_in_ports    [0:`RouterSize-1];
     reg [`PortBitSize-1         :0]     num_out_ports    [0:`RouterSize-1];
-    `include "read_router.v"
 
 
     /*******************************
@@ -35,7 +46,6 @@ module main();
     reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1][0:`TotalNumTrafficSize-1]; //[src][idx] -> Data
     reg [`MaxCycleBitSize-1     :0]         max_cycle;
     reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1];
-    `include "read_traffic.v"
 
     /*******************************
     **   Router instantiation     **
@@ -69,6 +79,85 @@ module main();
     endgenerate
 
 
+
+    /*******************************
+    **  I/O tasks instantiation   **
+    *******************************/
+	 task read_router;
+    reg[`read_word_size-1:0] mem[0:`mem_size-1];
+    integer i, j;
+    begin
+        if(`debugRouter)
+            $display("Read router connection from file:");
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            num_in_ports[i] = 0;
+            num_out_ports[i] = 0;
+        end
+        begin
+            $readmemh("router_configuration_file.hex", mem);
+            i=2;
+            credit_delay = mem[0];
+            num_vcs = mem[1];
+            while(mem[i][0] !== 1'bx)
+            begin //src:outport -> dst:inport
+                if(num_out_ports[mem[i]] < mem[i+1])
+                    num_out_ports[mem[i]] = mem[i+1];
+                if(num_in_ports[mem[i+2]] < mem[i+3])
+                    num_in_ports[mem[i+2]] = mem[i+3];
+
+                out_router[mem[i]][mem[i+1]] = mem[i+2];
+                out_port[mem[i]][mem[i+1]] = mem[i+3];
+                if(`debugRouter)
+                    $display("  router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
+                i=i+4;
+            end
+        end
+    end
+	endtask
+////////////////////////////////////////////////////
+	task read_traffic;
+    reg[`read_word_size-1:0] mem[0:`mem_size-1];
+    integer i, j, k;
+    begin
+        if(`debugTraffic | `debugRouter)
+            $display("Read traffic and routing table from file:");
+        for(i=0; i<`RouterSize; i=i+1)
+            total_num_traffic[i] = 0;
+        $readmemh("traffic_configuration_file.hex", mem);
+        i=1;
+        max_cycle = mem[0];
+        while(mem[i][0] !== 1'bx)
+        begin
+            routing_table[mem[i]][mem[i+1]] = mem[i+2]; // src:dest = out_port
+            if(`debugRouter)
+                $display("  routing table: %b %b %b", mem[i+0], mem[i+1], mem[i+2]);
+            i=i+3;
+        end
+        i=i+1;
+        while(mem[i][0] !== 1'bx)
+        begin
+            total_num_traffic[mem[i]] = mem[i+1];
+            if(`debugTraffic)
+                $display("  nod : %b %b", mem[i+0], mem[i+1]);
+            i=i+2;
+            k=0;
+            for(j=0; j<mem[i-1]*4; j=j+4)
+            begin
+                // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
+                all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
+                all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
+                all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
+                k=k+1;
+                if(`debugTraffic)
+                    $display("  flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
+            end
+            i = i+mem[i-1]*4;
+        end
+    end
+	 endtask
+
+
     /*******************************
     **   Traffic instantiation    **
     *******************************/
@@ -84,6 +173,7 @@ module main();
         traffic t(clk, traffic_op[genvar_i], traffic_data[genvar_i], traffic_done[genvar_i], traffic_buffer[genvar_i]);
     end
     endgenerate
+	 
 
 
     task load_staging;
