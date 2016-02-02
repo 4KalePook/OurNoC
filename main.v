@@ -191,7 +191,7 @@ module main();
         integer i, j;
         for(i=0; i<`RouterSize; i=i+1)
         begin
-            if(`debugTraffic && i < 2)
+            if(`debugTraffic && i < 5)
                 $display("  traffic_buffer[%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                     i, traffic_buffer[i]  `BufferFull, traffic_buffer[i]  `BufferVc, traffic_buffer[i]  `FlitHead, traffic_buffer[i]  `FlitTail, traffic_buffer[i] `FlitDst);
 
@@ -207,9 +207,12 @@ module main();
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
-                if(`debugRouter && j<5 && i<2)
+                if(`debugRouter && j<5 && i<5)
+                begin
                     $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                         i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                    $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
+                end
                 // if(`debugRouter && j<5 && i<2)
                 //     $display("  out_cr_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                 //         out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
@@ -228,7 +231,7 @@ module main();
             router_data[i]`InitNumOutPort = num_out_ports[i];
             router_data[i]`InitNumVc = num_vcs;
             router_data[i]`InitCreditDelay = credit_delay;
-            if(`debugRouter && i<2)
+            if(`debugRouter && i<5)
                 $display("  router[%d]: InitNumInPort:%b InitNumOutPort:%b InitNumVc:%b InitCreditDelay:%b",
                     i, router_data[i]`InitNumInPort,router_data[i]`InitNumOutPort,router_data[i]`InitNumVc,router_data[i]`InitCreditDelay);
             router_op[i] = `Init;
@@ -245,7 +248,7 @@ module main();
                 router_data[i]`RTOutPort = routing_table[i][load_rt_stage];
                 router_data[i]`RTDst = load_rt_stage;
                 router_op[i] = `LoadRt;
-                if(`debugRouter && i<2)
+                if(`debugRouter && i<5)
                     $display("  router[%d]: RTOutPort:%b RTDst:%b",
                         i, router_data[i]`RTOutPort,router_data[i]`RTDst);
 
