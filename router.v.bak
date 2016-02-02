@@ -281,7 +281,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                                 out_cr_staging_ar[i]={1'b1,vc,in_cycle};
                                 cred=cred-1;
                                 credit[out_p][vc]=cred;
-                                buffer[i][vc]=`b0;
+                                buffer[i][vc]='b0;
                           end
                       end
                   end

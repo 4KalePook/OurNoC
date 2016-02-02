@@ -329,7 +329,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
         `Init: init(data);
       endcase
   end
-  
+  /*
   reg[31:0] in_data;
   initial begin
 
@@ -351,5 +351,5 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
       #100 phase1();
 
   end
-  
+  */
 endmodule
