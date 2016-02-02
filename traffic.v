@@ -123,10 +123,7 @@ module traffic(clk,op, data, done, buffer);
         buffer `FlitDst <= packet_dest[head];
         num_flits_left_in_current_packet <= packet_num_flits[head];
         buffer `FlitHead <= 1;
-        if (packet_num_flits[head] == 1)
-        begin
-            head <= head + 1;
-        end
+        head <= head+1;
 
         if (packet_num_flits[head] == 1)
             buffer `FlitTail <= 1;
