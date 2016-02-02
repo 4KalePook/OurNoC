@@ -45,9 +45,9 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
   reg[`IndBitSize-1:0] head_crst[`maxio:0];
   reg[`IndBitSize-1:0] tail_crst[`maxio:0];
   
-  reg[`PortBitSize-1:0] num_in_ports;
-  reg[`PortBitSize-1:0] num_out_ports;
-  reg[`NumVcBitSize-1:0] numvcs;
+// reg[`PortBitSize-1:0] num_in_ports;
+// reg[`PortBitSize-1:0] num_out_ports;
+//  reg[`NumVcBitSize-1:0] numvcs;
   reg[`CreditDelayBitSize:0] credit_delay;
   
   generate
@@ -137,14 +137,14 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
     reg[`BufferBitSize-1:0] crtmp;
     integer i;
     begin
-        for(i=0;i<num_in_ports;i=i+1) begin
+        for(i=0;i<`maxio;i=i+1) begin
             if(in_staging[i]`BufferFull)begin
                 if(`debug)
                     $display("Error input staging is full\n");
             end
             in_staging[i]=in_staging_pl_ar[i];
         end
-        for(i=1;i<num_out_ports;i=i+1) 
+        for(i=1;i<`maxio;i=i+1) 
         begin
             crtmp=cr_staging_pl_ar[i];
             if(crtmp`BufferFull)
@@ -170,7 +170,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
     integer i; 
     begin
       ret=1;
-      for(i=0;i<num_in_ports;i=i+1) begin
+      for(i=0;i<`maxio;i=i+1) begin
           tmp=in_staging[i];
           if(tmp`BufferFull==1) begin
               ret=0;
@@ -186,7 +186,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
           in_staging[i]='b0;
       end
       
-      for(i=1;i<num_out_ports;i=i+1) begin
+      for(i=1;i<`maxio;i=i+1) begin
           
           if(!tempty(i,in_cycle)) begin
               dequeue(vc,i);
@@ -216,14 +216,14 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
       mark_out='b0;
       mark_in='b0;
       ret=1;
-      for(i=0; i<num_out_ports; i=i+1) begin
-          for(vc=0; vc<numvcs; vc=vc+1) begin
+      for(i=0; i<`maxio; i=i+1) begin
+          for(vc=0; vc<`maxvc; vc=vc+1) begin
               out_staging_ar[i]='b0;
           end
       end
       
-      for(vc=0; vc<numvcs; vc=vc+1) begin
-          for(i=0; i<num_in_ports; i=i+1) begin
+      for(vc=0; vc<`maxvc; vc=vc+1) begin
+          for(i=0; i<`maxio; i=i+1) begin
               out_cr_staging_ar[i]='b0;
               if(mark_in[i]==0)begin
                   flit = buffer[i][vc]`BufferFlit;
@@ -281,9 +281,9 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
     integer i,j;
     begin 
       credit_delay=data`InitCreditDelay;
-      numvcs=data`InitNumVc;
-      num_out_ports=data`InitNumOutPort;
-      num_in_ports=data`InitNumInPort;
+//      numvcs=data`InitNumVc;
+//      num_out_ports=data`InitNumOutPort;
+//      num_in_ports=data`InitNumInPort;
       done=0;
       for(i=0;i<`maxio;i=i+1) begin
           in_staging[i]='b0;

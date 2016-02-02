@@ -7,7 +7,7 @@
 `define NumFlit 10
 `define InitTrafficTotalNumTraffic [31:22]
   /*******************************
-  **        packet  module         **
+  **        packet  module      **
   *******************************/
 module packet(dest,vc,num_flits,dest_init,vc_init,num_flits_init);
 input[`DestSize-1:0] dest_init;
@@ -131,7 +131,7 @@ module traffic(clk,op, data, done, buffer);
   
  
   /*******************************
-  **        Init Task        **
+  **        Init Task           **
   *******************************/
 
     task init;
@@ -145,7 +145,7 @@ module traffic(clk,op, data, done, buffer);
     end
     endtask
   /*******************************
-  **        Fill Task        **
+  **        Fill Task           **
   *******************************/
 	
 	task fill;
