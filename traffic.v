@@ -2,13 +2,14 @@
 `define Init   5
 `define Fill   6
 `define Dequeue   7
-`define	NumPackets  1024
+`define	NumPackets  10
 `define DestSize 14
 `define NumFlit 10
 `define InitTrafficTotalNumTraffic [31:22]
   /*******************************
   **        packet  module         **
   *******************************/
+  
 module packet(dest,vc,num_flits,dest_init,vc_init,num_flits_init);
 input[`DestSize-1:0] dest_init;
 input [`VcBitSize-1:0] vc_init;
@@ -40,7 +41,7 @@ module traffic(clk,op, data, done, buffer);
 
  // reg [`BufferBitSize-1 :0] buffer;
   
-  reg [9:0] head,count;		//??
+  reg [9:0] head,count,count_new;		//??
   reg [9:0] num_packets_in_buffer,num_packets_in_buffer_new;
 
   reg [`NumFlit-1:0] num_flits_left_in_current_packet,num_flits_left_in_current_packet_new;
@@ -66,11 +67,11 @@ module traffic(clk,op, data, done, buffer);
   /*******************************************
   **I needed this alwayd loop for synthesis :D **
   ********************************************/
-  always @(op or data)
+  always @(op or data or num_packets_in_buffer or num_flits_left_in_current_packet or cur_flit_invalid_p or num_packets_sent or total_num_packets_to_send or head or num_flits or dest)
   begin
   buffer `BufferFull = (num_packets_sent < total_num_packets_to_send);
- num_flits_left_in_current_packet_new = num_flits_left_in_current_packet;
- cur_flit_invalid_p_new = cur_flit_invalid_p;
+  num_flits_left_in_current_packet_new = num_flits_left_in_current_packet;
+ 
    if (op == `Init)
   num_flits_left_in_current_packet_new=0;
   else if(op == `Dequeue )
@@ -83,17 +84,28 @@ module traffic(clk,op, data, done, buffer);
   else
   num_flits_left_in_current_packet_new = num_flits_left_in_current_packet-1;
   end
+ 
    
  if(op == `Init)
  cur_flit_invalid_p_new = 1;
  else if (op == `Dequeue)
+ begin
  if (cur_flit_invalid_p) 
     cur_flit_invalid_p_new = 0;
  else
  cur_flit_invalid_p_new = 1;
+ end
+ else
+ cur_flit_invalid_p_new = cur_flit_invalid_p;
  
+ if(op == `Init)
+ num_packets_in_buffer_new = 0;
+ else if (op == `Fill)
+ num_packets_in_buffer_new = num_packets_in_buffer + 1;
+ else
+ num_packets_in_buffer_new = num_packets_in_buffer;
   end
-
+ 
   /*******************************
   **        Queue Task         **
   *******************************/
@@ -102,8 +114,6 @@ module traffic(clk,op, data, done, buffer);
     begin
     
 	buffer `BufferVc = vc[head*`VcBitSize +: `VcBitSize ];
-	//flit=16'b0;
-	//buffer[20:0] = 21'b0;
 	if (cur_flit_invalid_p) 
 	begin
     if (num_flits_left_in_current_packet == 0) 
@@ -117,7 +127,9 @@ module traffic(clk,op, data, done, buffer);
     end
     flit `FlitTail = (num_flits_left_in_current_packet == 1) ? 1 : 0; 
   end
-  buffer [`FlitBitSize:0] = flit;    
+ 
+  buffer [`FlitBitSize:0] = flit;
+ 
 		if (num_flits_left_in_current_packet == 0 )
 		begin
         head = (head+1);
@@ -135,14 +147,14 @@ module traffic(clk,op, data, done, buffer);
   *******************************/
 
     task init;
-    begin 
-	num_packets_in_buffer = 0;
+    begin
+	
 	num_packets_sent_new = 0;
 	total_num_packets_to_send = data `InitTrafficTotalNumTraffic;
 	head =0;
-
-	count=0;
-    end
+	count_new=0;
+	
+	 end
     endtask
   /*******************************
   **        Fill Task        **
@@ -151,25 +163,44 @@ module traffic(clk,op, data, done, buffer);
 	task fill;
 	begin
 	
-	dest_init[count*`DestSize +: `DestSize] = data `DataDst;
+	dest_init [count*`DestSize +: `DestSize]= data `DataDst;
 	vc_init[count*`VcBitSize +: `VcBitSize]= data `DataVc;
 	num_flits_init[count * `NumFlit +: `NumFlit ]= data `DataNumFlit;
-	num_packets_in_buffer_new = num_packets_in_buffer + 1;
-	count=count+1;
+	count_new=count+1;
+	
+	
 	end
 	endtask
   always @(posedge clk) begin
+  
       case(op)
-        `NOP: ;
-        `Fill: fill();
-        `Dequeue: dequeue();
-        `Init: init();
+        `NOP:
+        begin
+        $display("NOP");
+         
+       end
+        `Fill:
+      begin 
+      $display("Fill");
+      fill();
+     end
+        `Dequeue:
+        begin
+        $display("Dequeue");
+         dequeue();
+        end
+        `Init:
+        begin
+         $display("Init");
+         init();
+        end
 		default: ;
       endcase  
 	  num_flits_left_in_current_packet = num_flits_left_in_current_packet_new;
 	  num_packets_sent = num_packets_sent_new;
 	  num_packets_in_buffer = num_packets_in_buffer_new;
 	  cur_flit_invalid_p = cur_flit_invalid_p_new;
+	  count = count_new;
   end
 endmodule
 
