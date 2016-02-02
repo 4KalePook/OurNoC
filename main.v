@@ -1,7 +1,12 @@
+
+
+`include "parameters.v"
+
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
 `define State_bit 4
-`include "parameters.v"
+`define debugRouter 1
+`define debugTraffic 1
 
 `define Init   5
 `define Fill   6
@@ -32,7 +37,6 @@ module main();
     reg [`CreditDelayBitSize-1    :0]        credit_delay;
     reg [`PortBitSize-1         :0]     num_in_ports    [0:`RouterSize-1];
     reg [`PortBitSize-1         :0]     num_out_ports    [0:`RouterSize-1];
-    `include "read_router.v"
 
 
     /*******************************
@@ -42,7 +46,6 @@ module main();
     reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1][0:`TotalNumTrafficSize-1]; //[src][idx] -> Data
     reg [`MaxCycleBitSize-1     :0]         max_cycle;
     reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1];
-    `include "read_traffic.v"
 
     /*******************************
     **   Router instantiation     **

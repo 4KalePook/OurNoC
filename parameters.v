@@ -1,4 +1,4 @@
-`ifndef parameters
+//`ifndef parameters
 `define parameters 1
 `define debug 1
 `define debugRouter 1
@@ -94,4 +94,4 @@
 `define InitTrafficTotalNumTraffic [31:22]
 
 
-`endif
+//`endif
