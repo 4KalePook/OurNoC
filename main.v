@@ -199,6 +199,7 @@ module main();
             begin
                 in_staging_ar[i][0] = traffic_buffer[i][0];
                 traffic_op[i] <= `Dequeue;
+                // $display("raft too");
             end
             else
                 traffic_op[i] <= `NOP;
@@ -354,37 +355,37 @@ module main();
                     $display("***main State: Init***");
                 nop_traffic;
                 init_router;
-                next_state <= `LoadRt;
+                state <= `LoadRtRouter;
             end
             `LoadRtRouter:
             begin
                 if(`debug)
                     $display("***main State: LoadRt***");
                 load_rt;
-                next_state <= `LoadRt;
+                state <= `LoadRtRouter;
                 if(load_rt_stage >= `RouterSize)
-                    next_state <= `LoadStaging;
+                    state <= `LoadStagingRouter;
             end
             `LoadStagingRouter:
             begin
                 if(`debug)
                     $display("***main State: LoadStaging***");
                 load_staging();
-                next_state <= `Phase0;
+                state <= `Phase0Router;
             end
             `Phase0Router:
             begin
                 if(`debug)
                     $display("***main State: Phase0***");
                 phase0();
-                next_state <= `Phase1;
+                state <= `Phase1Router;
             end
             `Phase1Router:
             begin
                 if(`debug)
                     $display("***main State: Phase1***");
                 phase1();
-                next_state <= `LoadStaging;
+                state <= `LoadStagingRouter;
                 in_cycle = in_cycle + 1;
             end
             `InitTraffic:
@@ -392,7 +393,7 @@ module main();
                 if(`debug)
                     $display("***main State: InitTraffic***");
                 init_traffic();
-                next_state <= `FillTraffic;
+                state <= `FillTraffic;
             end
             `FillTraffic:
             begin
@@ -400,20 +401,20 @@ module main();
                     $display("***main State: FillTraffic***");
                 fill_traffic();
                 if(done_fill_traffic == 1'b0)
-                    next_state <= `PreDequeTraffic;
+                    state <= `PreDequeTraffic;
                 else
-                    next_state <= `FillTraffic;
+                    state <= `FillTraffic;
             end
             `PreDequeTraffic:
             begin
                 if(`debug)
                     $display("***main State: PreDequeTraffic***");
                 pre_dequeue_traffic();
-                next_state <= `Init;
+                state <= `InitRouter;
             end
         endcase
 
-        state <= next_state;
+        // state <= next_state;
     end
 
 endmodule

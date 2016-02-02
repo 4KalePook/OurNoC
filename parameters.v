@@ -27,7 +27,11 @@
 `define LoadRt 4
 `define Init   5
 
+//traffic states
 `define PreDeque 4
+//Init
+`define Fill   6
+`define Dequeue   7
 
 `define CopyStaging 0
 `define Range(i,siz) siz*(i+1)-1:siz*i

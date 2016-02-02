@@ -1,7 +1,4 @@
 `include "parameters.v"
-`define Init   5
-`define Fill   6
-`define Dequeue   7
 `define	NumPackets  1024
 `define DestSize 14
 `define NumFlit 10
