@@ -2,15 +2,26 @@
 
 `include "parameters.v"
 
+//internal state
+`define Phase0Router 1
+`define Phase1Router 2
+`define LoadStagingRouter 3
+`define LoadRtRouter 4
+`define InitRouter 5
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
+`define PreDequeTraffic 8
 `define State_bit 4
-`define debugRouter 1
+
+
+
+`define debugRouter 0
 `define debugTraffic 1
 
 `define Init   5
 `define Fill   6
 `define Dequeue   7
+
 `define	NumPackets  1024
 `define DestSize 14
 `define NumFlit 10
@@ -173,7 +184,7 @@ module main();
         traffic t(clk, traffic_op[genvar_i], traffic_data[genvar_i], traffic_done[genvar_i], traffic_buffer[genvar_i]);
     end
     endgenerate
-	 
+
 
 
     task load_staging;
@@ -187,10 +198,11 @@ module main();
             if(can_inject[i][traffic_buffer[i] `BufferVc])
             begin
                 in_staging_ar[i][0] = traffic_buffer[i][0];
-                traffic_op[i] = `Dequeue;
+                traffic_op[i] <= `Dequeue;
+                // $display("raft too");
             end
             else
-                traffic_op[i] = `NOP;
+                traffic_op[i] <= `NOP;
             for(j=0; j<`maxio; j=j+1)
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
@@ -265,8 +277,8 @@ module main();
     task init_traffic;
         for(i=0; i<`RouterSize; i=i+1)
         begin
-            traffic_data[i] `InitTrafficTotalNumTraffic = total_num_traffic[i];
-            traffic_op[i] = `Init;
+            traffic_data[i] `InitTrafficTotalNumTraffic <= total_num_traffic[i];
+            traffic_op[i] <= `Init;
             if(`debugTraffic)
                 $display("  traffic[%b]: InitTrafficTotalNumTraffic:%b",
                     i, traffic_data[i] `InitTrafficTotalNumTraffic);
@@ -276,83 +288,104 @@ module main();
 
     task fill_traffic;
     begin
+        done_fill_traffic <= 1'b0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
             if(total_num_traffic[i] > 0)
             begin
-                traffic_data[i] `DataDst = all_traffic[i][cnt_fill_traffic]`DataDst;
-                traffic_data[i] `DataVc = all_traffic[i][cnt_fill_traffic]`DataVc;
-                traffic_data[i] `DataNumFlit = all_traffic[i][cnt_fill_traffic]`DataNumFlit;
-                traffic_op[i] = `Fill;
-                done_fill_traffic = 1'b1;
-                total_num_traffic[i] = total_num_traffic[i] - 1;
+                traffic_data[i] `DataDst <= all_traffic[i][cnt_fill_traffic]`DataDst;
+                traffic_data[i] `DataVc <= all_traffic[i][cnt_fill_traffic]`DataVc;
+                traffic_data[i] `DataNumFlit <= all_traffic[i][cnt_fill_traffic]`DataNumFlit;
+                traffic_op[i] <= `Fill;
+                done_fill_traffic <= 1'b1;
+                total_num_traffic[i] <= total_num_traffic[i] - 1;
                 if(`debugTraffic)
                     $display("  traffic[%b]: DataDst: %b DataVc: %b DataNumFlit: %b",
                         i, traffic_data[i] `DataDst, traffic_data[i] `DataVc, traffic_data[i] `DataNumFlit);
             end
             else
-                traffic_op[i] = `NOP;
+                traffic_op[i] <= `NOP;
         end
-        cnt_fill_traffic = cnt_fill_traffic + 1;
+        cnt_fill_traffic <= cnt_fill_traffic + 1;
     end
     endtask
 
+
+    task pre_dequeue_traffic;
+    integer i;
+    begin
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            traffic_op[i] <= `PreDeque;
+        end
+    end
+    endtask
 
     initial
     begin
         read_router();
         read_traffic();
-        clk <= 0;
-        in_cycle <= 0;
-        cnt_fill_traffic = 0;
+        clk = 0;
+        in_cycle = 0;
+        cnt_fill_traffic <= 0;
         load_rt_stage = 0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
             router_op[i] <= `NOP;
+            traffic_op[i] <= `NOP;
         end
         state = `InitTraffic;
     end
     always #1 clk=~clk;
 
+    task nop_traffic;
+        integer i;
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            traffic_op[i] <= `NOP;
+        end
+    endtask
+
     always @(posedge clk) begin
         case(state)
             `NOP: ;
-            `Init:
+            `InitRouter:
             begin
                 if(`debug)
                     $display("***main State: Init***");
+                nop_traffic;
                 init_router;
-                next_state = `LoadRt;
+                state <= `LoadRtRouter;
             end
-            `LoadRt:
+            `LoadRtRouter:
             begin
                 if(`debug)
                     $display("***main State: LoadRt***");
                 load_rt;
-                next_state = `LoadRt;
+                state <= `LoadRtRouter;
                 if(load_rt_stage >= `RouterSize)
-                    next_state = `LoadStaging;
+                    state <= `LoadStagingRouter;
             end
-            `LoadStaging:
+            `LoadStagingRouter:
             begin
                 if(`debug)
                     $display("***main State: LoadStaging***");
                 load_staging();
-                next_state = `Phase0;
+                state <= `Phase0Router;
             end
-            `Phase0:
+            `Phase0Router:
             begin
                 if(`debug)
                     $display("***main State: Phase0***");
                 phase0();
-                next_state = `Phase1;
+                state <= `Phase1Router;
             end
-            `Phase1:
+            `Phase1Router:
             begin
                 if(`debug)
                     $display("***main State: Phase1***");
                 phase1();
-                next_state = `LoadStaging;
+                state <= `LoadStagingRouter;
                 in_cycle = in_cycle + 1;
             end
             `InitTraffic:
@@ -360,22 +393,28 @@ module main();
                 if(`debug)
                     $display("***main State: InitTraffic***");
                 init_traffic();
-                next_state = `FillTraffic;
+                state <= `FillTraffic;
             end
             `FillTraffic:
             begin
                 if(`debug)
                     $display("***main State: FillTraffic***");
-                done_fill_traffic = 0;
                 fill_traffic();
                 if(done_fill_traffic == 1'b0)
-                    next_state = `Init;
+                    state <= `PreDequeTraffic;
                 else
-                    next_state = `FillTraffic;
+                    state <= `FillTraffic;
+            end
+            `PreDequeTraffic:
+            begin
+                if(`debug)
+                    $display("***main State: PreDequeTraffic***");
+                pre_dequeue_traffic();
+                state <= `InitRouter;
             end
         endcase
 
-        state = next_state;
+        // state <= next_state;
     end
 
 endmodule
