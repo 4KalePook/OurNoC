@@ -355,7 +355,11 @@ module main();
         begin
             router_op[i] = `NOP;
             if(done[i] !== 1'b1)
+            begin
                 is_end = 0;
+                if(`debugRouter)
+                    $display("  done[%d]: %b", i, done[i]);
+            end
         end
     end
     endtask
