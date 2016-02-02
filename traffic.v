@@ -5,7 +5,6 @@
 `define	NumPackets  1024
 `define DestSize 14
 `define NumFlit 10
-`define InitTrafficTotalNumTraffic [31:22];
 
 /*******************************
 **        traffic  module     **
@@ -16,7 +15,7 @@ module traffic(clk,op, data, done, buffer);
     output reg [`BufferBitSize-1 :0] buffer;
 
     input clk;
-    input [2:0] op;
+    input [`op_size-1:0] op;
     input [`DataBitSize-1:0] data;
 
     // reg [`BufferBitSize-1 :0] buffer;
@@ -28,12 +27,12 @@ module traffic(clk,op, data, done, buffer);
     reg  [`NumFlit-1    :0] packet_num_flits   [0:`TotalNumTrafficSize]; //Ok
 
     reg [9:0] head,count;		//??
-    reg [9:0] num_packets_in_buffer,num_packets_in_buffer_new;
+    // reg [9:0] num_packets_in_buffer,num_packets_in_buffer_new;
 
-    reg [`NumFlit-1:0] num_flits_left_in_current_packet,num_flits_left_in_current_packet_new;
-    reg [9:0] num_packets_sent,num_packets_sent_new;
+    reg [`NumFlit-1:0] num_flits_left_in_current_packet; //,num_flits_left_in_current_packet_new;
+    // reg [9:0] num_packets_sent,num_packets_sent_new;
 
-    reg cur_flit_invalid_p,cur_flit_invalid_p_new;
+    // reg cur_flit_invalid_p,cur_flit_invalid_p_new;
     reg [`FlitBitSize-1:0] flit;
     reg [9:0] total_num_packets_to_send; //??
     // wire [`DestSize*`NumPackets-1:0] dest;
@@ -43,7 +42,7 @@ module traffic(clk,op, data, done, buffer);
     // wire [`NumFlit*`NumPackets-1:0] num_flits;
     // reg  [`NumFlit*`NumPackets-1:0] num_flits_init;
 
-    assign done = (num_packets_sent < total_num_packets_to_send) ? 0 : 1;
+    assign done = (head <= total_num_packets_to_send) ? 0 : 1;
 
     // generate
     // genvar i;
@@ -85,52 +84,36 @@ module traffic(clk,op, data, done, buffer);
     /*******************************
     **        Queue Task         **
     *******************************/
-    task dequeue();
+    task dequeue;
     begin
 
         //i added
-        if (cur_flit_invalid_p)
-            cur_flit_invalid_p_new = 0;
-        else
-            cur_flit_invalid_p_new = 1;
+        // if (cur_flit_invalid_p)
+        //     cur_flit_invalid_p_new = 0;
+        // else
+        //     cur_flit_invalid_p_new = 1;
 
-        if (cur_flit_invalid_p)
+        // if (cur_flit_invalid_p)
+        // begin
+        buffer `BufferVc <= packet_vc[head];
+        buffer `FlitDst <= packet_dest[head];
+        if(`debug)
+            $display("In Traffic: BufferVc: %b FlitDst: %b head: %b", packet_vc[head], packet_dest[head], head);
+
+        if (num_flits_left_in_current_packet == 1)
         begin
-            if (num_flits_left_in_current_packet == 0)
-                num_flits_left_in_current_packet_new = packet_num_flits[head];
+            num_flits_left_in_current_packet <= packet_num_flits[head];
+            head <= head + 1;
+            buffer `FlitHead <= 1;
         end
         else
-            num_flits_left_in_current_packet_new = num_flits_left_in_current_packet-1;
-        //i added
+            num_flits_left_in_current_packet <= num_flits_left_in_current_packet-1;
 
 
-
-        buffer `BufferVc = packet_vc[head];
-        //flit=16'b0;
-        //buffer[20:0] = 21'b0;
-        if (cur_flit_invalid_p)
-        begin
-            if (num_flits_left_in_current_packet == 0)
-            begin	// create new head flit
-                buffer `FlitDst = packet_dest[head];
-                buffer `FlitHead = 1;
-            end
-            else
-            begin
-                buffer `FlitHead = 0;
-            end
-            buffer `FlitTail = (num_flits_left_in_current_packet == 1) ? 1 : 0;
-        end
-        // buffer [`FlitBitSize:0] = flit;
-        if (num_flits_left_in_current_packet == 0 )
-        begin
-            head = (head+1);
-            if(head >= num_packets_in_buffer)
-            begin
-                head=head-num_packets_in_buffer;
-            end
-            num_packets_sent_new = num_packets_sent + 1 ;
-        end
+        if (num_flits_left_in_current_packet == 2 || (num_flits_left_in_current_packet==1 && packet_num_flits[head] == 1))
+            buffer `FlitTail <= 1;
+        else
+            buffer `FlitTail <= 0;
     end
     endtask
 
@@ -141,12 +124,10 @@ module traffic(clk,op, data, done, buffer);
 
     task init;
     begin
-        num_packets_in_buffer = 0;
-        num_packets_sent_new = 0;
-        total_num_packets_to_send = data `InitTrafficTotalNumTraffic;
-        cur_flit_invalid_p_new = 1;
-        head =0;
-        count=0;
+        total_num_packets_to_send <= data `InitTrafficTotalNumTraffic;
+        num_flits_left_in_current_packet <= 1;
+        head <= 0;
+        count <= 0;
     end
     endtask
     /*******************************
@@ -155,30 +136,30 @@ module traffic(clk,op, data, done, buffer);
 
     task fill;
     begin
-        packet_dest[count] = data `DataDst;
-        packet_vc[count]= data `DataVc;
-        packet_num_flits[count]= data `DataNumFlit;
-        num_packets_in_buffer_new = num_packets_in_buffer + 1;
-        count=count+1;
+        packet_dest[count] <= data `DataDst;
+        packet_vc[count] <= data `DataVc;
+        packet_num_flits[count] <= data `DataNumFlit;
+        count <= count+1;
     end
     endtask
 
     always @(posedge clk) begin
-        buffer `BufferFull = (num_packets_sent < total_num_packets_to_send);
-        num_flits_left_in_current_packet_new = num_flits_left_in_current_packet;
-        cur_flit_invalid_p_new = cur_flit_invalid_p;
+        buffer `BufferFull <= (head <= total_num_packets_to_send);
+        // num_flits_left_in_current_packet_new <= num_flits_left_in_current_packet;
+        // cur_flit_invalid_p_new <= cur_flit_invalid_p;
 
         case(op)
             `NOP: ;
             `Fill: fill();
+            `PreDeque: dequeue();
             `Dequeue: dequeue();
             `Init: init();
         default: ;
         endcase
-        num_flits_left_in_current_packet = num_flits_left_in_current_packet_new;
-        num_packets_sent = num_packets_sent_new;
-        num_packets_in_buffer = num_packets_in_buffer_new;
-        cur_flit_invalid_p = cur_flit_invalid_p_new;
+        // num_flits_left_in_current_packet <= num_flits_left_in_current_packet_new;
+        // num_packets_sent <= num_packets_sent_new;
+        // num_packets_in_buffer <= num_packets_in_buffer_new;
+        // cur_flit_invalid_p <= cur_flit_invalid_p_new;
 
 
     end
