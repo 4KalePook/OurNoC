@@ -92,19 +92,22 @@ module traffic(clk,op, data, done, buffer);
 
         // if (cur_flit_invalid_p)
         // begin
-        buffer `BufferVc <= packet_vc[head];
-        buffer `FlitDst <= packet_dest[head];
         if(`debug)
-            $display("In Traffic: BufferVc: %b FlitDst: %b head: %b", packet_vc[head], packet_dest[head], head);
+            $display("In Traffic: BufferVc: %b FlitDst: %b current_num: %b num_flits: %b head: %b", packet_vc[head], packet_dest[head], num_flits_left_in_current_packet,packet_num_flits[head],head);
 
         if (num_flits_left_in_current_packet == 1)
         begin
             num_flits_left_in_current_packet <= packet_num_flits[head];
             head <= head + 1;
             buffer `FlitHead <= 1;
+            buffer `BufferVc <= packet_vc[head];
+            buffer `FlitDst <= packet_dest[head];
         end
         else
+        begin
             num_flits_left_in_current_packet <= num_flits_left_in_current_packet-1;
+            buffer `FlitHead <= 0;
+        end
 
 
         if (num_flits_left_in_current_packet == 2 || (num_flits_left_in_current_packet==1 && packet_num_flits[head] == 1))
@@ -114,6 +117,23 @@ module traffic(clk,op, data, done, buffer);
     end
     endtask
 
+    task pre_dequeue;
+    begin
+        buffer `BufferVc <= packet_vc[head];
+        buffer `FlitDst <= packet_dest[head];
+        num_flits_left_in_current_packet <= packet_num_flits[head];
+        buffer `FlitHead <= 1;
+        if (packet_num_flits[head] == 1)
+        begin
+            head <= head + 1;
+        end
+
+        if (packet_num_flits[head] == 1)
+            buffer `FlitTail <= 1;
+        else
+            buffer `FlitTail <= 0;
+    end
+    endtask
 
     /*******************************
     **        Init Task           **
@@ -122,7 +142,7 @@ module traffic(clk,op, data, done, buffer);
     task init;
     begin
         total_num_packets_to_send <= data `InitTrafficTotalNumTraffic;
-        num_flits_left_in_current_packet <= 1;
+        // num_flits_left_in_current_packet <= 1;
         head <= 0;
         count <= 0;
     end
@@ -148,7 +168,7 @@ module traffic(clk,op, data, done, buffer);
         case(op)
             `NOP: ;
             `Fill: fill();
-            `PreDeque: dequeue();
+            `PreDeque: pre_dequeue();
             `Dequeue: dequeue();
             `Init: init();
         default: ;

@@ -14,7 +14,7 @@
 
 `define max_cr_delay 100
 
-`define debugRouter 1
+`define debugRouter 0
 `define debugTraffic 1
 
 `define in_cycle_size 16
