@@ -3,6 +3,7 @@
 `include "parameters.v"
 
 //internal state
+`define CheckEnd 0
 `define Phase0Router 1
 `define Phase1Router 2
 `define LoadStagingRouter 3
@@ -35,6 +36,7 @@ module main();
     reg done_fill_traffic;
     integer cnt_fill_traffic;
     integer i, j;
+    reg is_end;
     reg clk;
 
     /*******************************
@@ -344,9 +346,22 @@ module main();
         end
     endtask
 
+
+
+    task check_end;
+    begin
+        is_end = 1;
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            router_op[i] = `NOP;
+            if(done[i] !== 1'b1)
+                is_end = 0;
+        end
+    end
+    endtask
+
     always @(posedge clk) begin
         case(state)
-            `NOP: ;
             `InitRouter:
             begin
                 if(`debug)
@@ -384,8 +399,21 @@ module main();
                 if(`debug)
                     $display("***main State: Phase1***");
                 phase1();
-                state <= `LoadStagingRouter;
+                state <= `CheckEnd;
                 in_cycle = in_cycle + 1;
+            end
+            `CheckEnd:
+            begin
+                if(`debug)
+                    $display("***main State: CheckEnd***");
+                check_end();
+                if(is_end == 1'b1)
+                begin
+                    $display("finished at Cycle: %d", in_cycle);
+                    $finish;
+                end
+                else
+                    state <= `LoadStagingRouter;
             end
             `InitTraffic:
             begin
