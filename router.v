@@ -1,7 +1,7 @@
 `include "parameters.v"
 
 
-module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
+module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
   output[`maxio*`BufferBitSize-1:0] out_staging;
   output[`maxio*`BufferBitSize-1:0] out_cr_staging;
   output done;
@@ -140,7 +140,12 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
         for(i=0;i<`maxio;i=i+1) begin
             if(in_staging[i]`BufferFull)begin
                 if(`debug)
-                    $display("Error input staging is full\n");
+                    $display("%d Error input staging is full\n",id);
+            end
+            if(in_staging_pl_ar[i]`BufferFull)begin
+                
+                if(`debug)
+                    $display("%d incoming input at port %d, flit: %b \n",id,i,in_staging_pl_ar[i]);
             end
             in_staging[i]=in_staging_pl_ar[i];
         end
@@ -156,7 +161,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                 end
                 else begin
                     if(`debug)
-                      $display("Error credit buffer is full\n");
+                      $display("%d Error credit buffer is full\n",id);
                 end
             end
         end
@@ -175,13 +180,13 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
           tmp=in_staging[i];
           if(tmp`BufferFull==1) begin
               if(`debug)
-                $display("Note: buffering instaging");
+                $display("Note: %d in %d buffering instaging",id,i);
               ret=0;
               vc=tmp`BufferVc;
               if(buffer[i][vc]`BufferFull==1) begin
                   if(`debug  && i!=0)
 
-                      $display("Error input buffer is full.\n");
+                      $display("%d vc %d Error input buffer is full.\n",id,vc);
               end
               else begin
                       buffer[i][vc]=tmp;
@@ -234,7 +239,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                   is_full = buffer[i][vc]`BufferFull;
                   if(is_full) begin
                       if(`debug)
-                        $display("Note: full buffer");
+                        $display("%d in %d vc %d Note: full buffer",id,i,vc);
                       ret=0;
                       out_p = rt[flit`FlitDst];
 
@@ -243,12 +248,12 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
 
 
                           if(`debug)
-                            $display("Note: free target out port for this buffer.");
+                            $display("%d out_p %d Note: free target out port for this buffer.",id,out_p);
 
                           if(out_p==0)begin
 
                                 if(`debug)
-                                    $display("Note: sending data.");
+                                    $display("%d Note: sending data.",id);
 
                                 if(flit`FlitTail)
                                   cur_in_port[out_p][vc]='b1;
@@ -264,7 +269,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                           if(cred > 0 ) begin
 
                                 if(`debug)
-                                    $display("Note: credit is non-zero, sending data.");
+                                    $display("%d Note: credit is non-zero, sending data.",id);
                                 if(flit`FlitTail)
                                   cur_in_port[out_p][vc]='b1;
                                 else
@@ -314,6 +319,23 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
       end
     end
   endtask
+  
+task log;
+integer i,j;
+begin
+//      numvcs=data`InitNumVc;
+//      num_out_ports=data`InitNumOutPort;
+//      num_in_ports=data`InitNumInPort;
+      $display("router %d done %d",id,done);
+      for(i=0;i<`maxio;i=i+1) begin
+        
+          for(j=0; j<`maxvc; j=j+1) begin
+                
+                $display("router %d out %d vc %d val %d\n",id,i,j,credit[i][j]);
+          end
+      end
+end
+endtask
 
   always @(negedge clk) begin
       case(op)
@@ -324,6 +346,8 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
         `LoadRt: load_rt(data);
         `Init: init(data);
       endcase
+      
+               //  log();
   end
   /*
 =======
