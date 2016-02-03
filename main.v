@@ -427,7 +427,6 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                         $display("***main State: Phase1Router***");
                     phase1();
                     state <= `CheckEnd;
-                    in_cycle = in_cycle + 1;
                 end
                 `CheckEnd:
                 begin
@@ -440,7 +439,10 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                         state <= `EndState;
                     end
                     else
+                    begin
+                        in_cycle = in_cycle + 1;
                         state <= `LoadStagingRouter;
+                    end
                 end
                 `InitTraffic:
                 begin
