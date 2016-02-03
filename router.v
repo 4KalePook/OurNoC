@@ -1,7 +1,7 @@
 `include "parameters.v"
 
 
-module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
+module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, cr_staging_pl, data, in_cycle, clk);
   output[`maxio*`BufferBitSize-1:0] out_staging;
   output[`maxio*`BufferBitSize-1:0] out_cr_staging;
   output done;

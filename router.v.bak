@@ -237,7 +237,6 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
 
       for(vc=0; vc<`maxvc; vc=vc+1) begin
           for(i=0; i<`maxio; i=i+1) begin
-              out_cr_staging_ar[i]='b0;
               if(mark_in[i]==0)begin
                   flit = buffer[i][vc]`BufferFlit;
                   is_full = buffer[i][vc]`BufferFull;
