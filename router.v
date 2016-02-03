@@ -305,7 +305,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
               end
           end
       end
-      done=ret;
+      done=done&ret;
     end
   endtask
 

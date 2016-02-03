@@ -69,7 +69,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
       reg[`IndBitSize-1:0] elem;
       begin
         elem =tail_crst[out_port];
-        crst[out_port][elem]`BufferTimeStamp=cycle+credit_delay;
+        crst[out_port][elem]`BufferTimeStamp=cycle;
         crst[out_port][elem]`BufferVc=vc;
         crst[out_port][elem]`BufferFull=1;
         tail_crst[out_port]=(tail_crst[out_port]+1)%`crbufsz;
