@@ -99,6 +99,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
     *******************************/
 	 task read_router;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
+    reg[`read_word_size-1:0] memoff[0:3];
     integer i, j;
     begin
         if(`debugRouter)
@@ -113,17 +114,22 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=2;
             credit_delay = mem[0];
             num_vcs = mem[1];
-            while(mem[i][0] !== 1'bx)
+            
+            memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
+            while(memoff[0][0] !== 1'bx)
             begin //src:outport -> dst:inport
-                if(num_out_ports[mem[i]] < mem[i+1])
-                    num_out_ports[mem[i]] = mem[i+1];
-                if(num_in_ports[mem[i+2]] < mem[i+3])
-                    num_in_ports[mem[i+2]] = mem[i+3];
+                memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
+                memoff[2]=`SafeAccess(mem,i+2,`read_word_size-1);
+                memoff[3]=`SafeAccess(mem,i+3,`read_word_size-1);
+                if(num_out_ports[memoff[0]] < memoff[1])
+                    num_out_ports[memoff[0]] = memoff[1];
+                if(num_in_ports[memoff[2]] < memoff[3])
+                    num_in_ports[memoff[2]] = memoff[3];
 
-                out_router[mem[i]][mem[i+1]] = mem[i+2];
-                out_port[mem[i]][mem[i+1]] = mem[i+3];
+                out_router[mem[i]][memoff[1]] = memoff[2];
+                out_port[mem[i]][memoff[1]] = memoff[3];
                 if(`debugRouter)
-                    $display("  router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
+                    $display("  router connection : %b %b %b %b", memoff[0], memoff[1], memoff[2], memoff[3]);
                 i=i+4;
             end
         end
