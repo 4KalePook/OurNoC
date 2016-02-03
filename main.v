@@ -431,7 +431,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                 `CheckEnd:
                 begin
                     if(`debug)
-                        $display("***main State: CheckEnd***");
+                        $display("***main State: CheckEnd ***");
                     check_end();
                     if(is_end == 1'b1)
                     begin
@@ -440,7 +440,9 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                     end
                     else
                     begin
-                        in_cycle = in_cycle + 1;
+                        in_cycle = in_cycle + 1; 
+                        if(`debug)
+                          $display("***Next Cycle: %d***",in_cycle);
                         state <= `LoadStagingRouter;
                     end
                 end
