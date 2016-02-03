@@ -78,7 +78,7 @@ module main();
     generate
     for(genvar_i=0; genvar_i<`RouterSize; genvar_i=genvar_i+1)
     begin:routers
-        router #(genvar_i) r(out_staging[genvar_i], out_cr_staging[genvar_i], done[genvar_i], can_inject[genvar_i], router_op[genvar_i], in_staging[genvar_i], in_cr_staging[genvar_i], router_data[genvar_i], in_cycle, clk);
+        router r(out_staging[genvar_i], out_cr_staging[genvar_i], done[genvar_i], can_inject[genvar_i], router_op[genvar_i], in_staging[genvar_i], in_cr_staging[genvar_i], router_data[genvar_i], in_cycle, clk);
         for(genvar_j=0; genvar_j<`maxio; genvar_j=genvar_j+1)
         begin
             assign out_staging_ar[genvar_i][genvar_j] = out_staging[genvar_i][`Range(genvar_j,`BufferBitSize)];
@@ -202,8 +202,11 @@ module main();
                 $display("raft too");
             end
             else
+            begin
                 traffic_op[i] <= `NOP;
-            for(j=0; j<`maxio; j=j+1)
+                in_staging_ar[i][0] = 0;
+            end
+            for(j=1; j<`maxio; j=j+1)
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
