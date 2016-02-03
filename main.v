@@ -116,7 +116,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             num_vcs = mem[1];
             
             
-            for(i=2; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
+            for(; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
             begin //src:outport -> dst:inport
                 memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
                 memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
@@ -138,6 +138,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
 ////////////////////////////////////////////////////
 	task read_traffic;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
+    reg[`read_word_size-1:0] memoff[0:3];
     integer i, j, k;
     begin
         if(`debugTraffic | `debugRouter)
@@ -150,15 +151,17 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         $readmemh("traffic_configuration_file.hex", mem);
         i=1;
         max_cycle = mem[0];
-        while(mem[i][0] !== 1'bx)
+        for(; i < `read_word_size && (mem[i][0] !== 1'bx) ; i=i+3)
         begin
-            routing_table[mem[i]][mem[i+1]] = mem[i+2]; // src:dest = out_port
+            memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
+            memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
+            memoff[2]=`SafeAccess(mem,i+2,`read_word_size-1);
+            routing_table[memoff[0]][memoff[1]] = memoff[2]; // src:dest = out_port
             if(`debugRouter)
-                $display("  routing table: %b %b %b", mem[i+0], mem[i+1], mem[i+2]);
-            i=i+3;
+                $display("  routing table: %b %b %b", memoff[0], memoff[1], memoff[2]);
         end
         i=i+1;
-        while(mem[i][0] !== 1'bx)
+        for(;(i+1 <`read_word_size)&& (mem[i][0] !== 1'bx);i=i+j)
         begin
             total_num_traffic[mem[i]] = mem[i+1];
             if(`debugTraffic)
@@ -166,19 +169,23 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=i+2;
             k=0;
             j=0;
-            while(mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
+            for(j=0;(i+j+3 < `read_word_size)&&(k < `TotalNumTrafficSize)&&(mem[i+j][0] !== 1'bx && j<mem[i-1]*4);j=j+4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
-                all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
-                all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
-                all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
+                
+                memoff[0]=`SafeAccess(mem,i+j,`read_word_size-1);
+                memoff[1]=`SafeAccess(mem,i+j+1,`read_word_size-1);
+                memoff[2]=`SafeAccess(mem,i+j+2,`read_word_size-1);
+                
+                all_traffic[memoff[0]][k]`DataDst = memoff[1];
+                all_traffic[memoff[0]][k]`DataVc = memoff[2];
+                all_traffic[memoff[0]][k]`DataNumFlit = memoff[3];
                 k=k+1;
                 total_num_traffic_input[mem[i]] = k;
                 if(`debugTraffic)
-                    $display("  flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
+                    $display("  flit : %b %b %b %b", memoff[0], memoff[1], memoff[2], memoff[3]);
                 j= j+4;
             end
-            i = i+j;
         end
     end
 	 endtask
