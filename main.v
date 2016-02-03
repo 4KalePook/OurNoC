@@ -59,6 +59,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
     reg [`DataBitSize-1         :0]         all_traffic [0:`RouterSize-1][0:`TotalNumTrafficSize-1]; //[src][idx] -> Data
     reg [`MaxCycleBitSize-1     :0]         max_cycle;
     reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic[0:`RouterSize-1];
+    reg [`TotalNumTrafficBitSize-1      :0]      total_num_traffic_input[0:`RouterSize-1];
 
     /*******************************
     **   Router instantiation     **
@@ -136,7 +137,10 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         if(`debugTraffic | `debugRouter)
             $display("Read traffic and routing table from file:");
         for(i=0; i<`RouterSize; i=i+1)
+        begin
             total_num_traffic[i] = 0;
+            total_num_traffic_input[i] = 0;
+        end
         $readmemh("traffic_configuration_file.hex", mem);
         i=1;
         max_cycle = mem[0];
@@ -155,17 +159,20 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                 $display("  nod : %b %b", mem[i+0], mem[i+1]);
             i=i+2;
             k=0;
-            for(j=0; j<mem[i-1]*4; j=j+4)
+            j=0;
+            while(mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
                 all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
                 all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
                 all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
                 k=k+1;
+                total_num_traffic_input[mem[i]] = k;
                 if(`debugTraffic)
                     $display("  flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
+                j= j+4;
             end
-            i = i+mem[i-1]*4;
+            i = i+j;
         end
     end
 	 endtask
@@ -212,15 +219,15 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
-                if(`debugRouter && j<5 && i<5)
-                begin
-                    $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                        i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
-                    $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
-                end
-                if(`debugRouter && j<5 && i<5)
-                    $display("in_cr[%d][%d] = out_cr[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                        i, j, out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
+                // if(`debugRouter && j<5 && i<5)
+                // begin
+                //     // $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                //     //     i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                //     // $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
+                // end
+                // if(`debugRouter && j<5 && i<5)
+                //     $display("in_cr[%d][%d] = out_cr[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                //         i, j, out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
 
                 router_op[i] = `LoadStaging;
             end
@@ -299,14 +306,14 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         done_fill_traffic <= 1'b0;
         for(i=0; i<`RouterSize; i=i+1)
         begin
-            if(total_num_traffic[i] > 0)
+            if(total_num_traffic_input[i] > 0)
             begin
                 traffic_data[i] `DataDst <= all_traffic[i][cnt_fill_traffic]`DataDst;
                 traffic_data[i] `DataVc <= all_traffic[i][cnt_fill_traffic]`DataVc;
                 traffic_data[i] `DataNumFlit <= all_traffic[i][cnt_fill_traffic]`DataNumFlit;
                 traffic_op[i] <= `Fill;
                 done_fill_traffic <= 1'b1;
-                total_num_traffic[i] <= total_num_traffic[i] - 1;
+                total_num_traffic_input[i] <= total_num_traffic_input[i] - 1;
                 if(`debugTraffic)
                     $display("  traffic[%d]: DataDst: %b DataVc: %b DataNumFlit: %b",
                         i, traffic_data[i] `DataDst, traffic_data[i] `DataVc, traffic_data[i] `DataNumFlit);
@@ -440,7 +447,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                     end
                     else
                     begin
-                        in_cycle = in_cycle + 1; 
+                        in_cycle = in_cycle + 1;
                         if(`debug)
                           $display("***Next Cycle: %d***",in_cycle);
                         state <= `LoadStagingRouter;

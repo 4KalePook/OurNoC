@@ -27,8 +27,8 @@ module traffic(clk,op, data, done, buffer);
     // reg [9:0] num_packets_in_buffer,num_packets_in_buffer_new;
 
     reg [`NumFlit-1:0] num_flits_left_in_current_packet; //,num_flits_left_in_current_packet_new;
-    // reg [9:0] num_packets_sent,num_packets_sent_new;
-
+    reg [9:0] num_packets_sent;//,num_packets_sent_new;
+    // reg [9:0] num_packets_fill;
     // reg cur_flit_invalid_p,cur_flit_invalid_p_new;
     reg [`FlitBitSize-1:0] flit;
     reg [9:0] total_num_packets_to_send; //??
@@ -98,7 +98,11 @@ module traffic(clk,op, data, done, buffer);
         if (num_flits_left_in_current_packet == 1)
         begin
             num_flits_left_in_current_packet <= packet_num_flits[head];
-            head <= head + 1;
+            num_packets_sent <= num_packets_sent + 1;
+            if(head + 1 >= count)
+                head <= 0;
+            else
+                head <= head + 1;
             buffer `FlitHead <= 1;
             buffer `BufferVc <= packet_vc[head];
             buffer `FlitDst <= packet_dest[head];
@@ -123,8 +127,11 @@ module traffic(clk,op, data, done, buffer);
         buffer `FlitDst <= packet_dest[head];
         num_flits_left_in_current_packet <= packet_num_flits[head];
         buffer `FlitHead <= 1;
-        head <= head+1;
-
+        if(head + 1 >= count)
+            head <= 0;
+        else
+            head <= head + 1;
+        num_packets_sent <= num_packets_sent + 1;
         if (packet_num_flits[head] == 1)
             buffer `FlitTail <= 1;
         else
@@ -142,6 +149,7 @@ module traffic(clk,op, data, done, buffer);
         // num_flits_left_in_current_packet <= 1;
         head <= 0;
         count <= 0;
+        num_packets_sent <= 0;
     end
     endtask
     /*******************************
@@ -158,7 +166,7 @@ module traffic(clk,op, data, done, buffer);
     endtask
 
     always @(posedge clk) begin
-        buffer `BufferFull <= (head <= total_num_packets_to_send);
+        buffer `BufferFull <= (num_packets_sent <= total_num_packets_to_send);
         // num_flits_left_in_current_packet_new <= num_flits_left_in_current_packet;
         // cur_flit_invalid_p_new <= cur_flit_invalid_p;
 
