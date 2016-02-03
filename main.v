@@ -212,9 +212,9 @@ module main();
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
                 if(`debugRouter && j<5 && i<5)
                 begin
-                    // $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                    //     i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
-                    // $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
+                    $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                        i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                    $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
                 end
                 if(`debugRouter && j<5 && i<5)
                     $display("in_cr[%d][%d] = out_cr[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
@@ -420,7 +420,7 @@ module main();
                 if(is_end == 1'b1)
                 begin
                     $display("finished at Cycle: %d", in_cycle);
-                    $finish;
+                    $stop;
                 end
                 else
                     state <= `LoadStagingRouter;
