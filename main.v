@@ -118,6 +118,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             
             for(; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
             begin //src:outport -> dst:inport
+                
                 memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
                 memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
                 memoff[2]=`SafeAccess(mem,i+2,`read_word_size-1);
@@ -127,8 +128,8 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
                 if(num_in_ports[memoff[2]] < memoff[3])
                     num_in_ports[memoff[2]] = memoff[3];
 
-                out_router[mem[i]][memoff[1]] = memoff[2];
-                out_port[mem[i]][memoff[1]] = memoff[3];
+                out_router[memoff[0]][memoff[1]] = memoff[2];
+                out_port[memoff[0]][memoff[1]] = memoff[3];
                 if(`debugRouter)
                     $display("  router connection : %b %b %b %b", memoff[0], memoff[1], memoff[2], memoff[3]);
             end

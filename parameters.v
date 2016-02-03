@@ -101,5 +101,5 @@
 `define InitTrafficBitSize 32 //{total_num_traffic[10]}
 `define InitTrafficTotalNumTraffic [31:22]
 
-`define SafeAccess(array,i,limit) ( i >= 0 && i<limit ? array[i] : 'b0 )
+`define SafeAccess(array,i,limit) array[i] //( i >= 0 && i<limit ? array[i] : 'b0 )
 //`endif
