@@ -287,7 +287,7 @@ module main();
             traffic_op[i] <= `Init;
             if(`debugTraffic)
                 $display("  traffic[%d]: InitTrafficTotalNumTraffic:%b",
-                    i, traffic_data[i] `InitTrafficTotalNumTraffic);
+             i, traffic_data[i] `InitTrafficTotalNumTraffic);
         end
     endtask
 

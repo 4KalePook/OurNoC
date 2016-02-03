@@ -154,9 +154,11 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
             crtmp=cr_staging_pl_ar[i];
             if(crtmp`BufferFull)
             begin
-
+                if(`debug)
+                    $display("%d Incoming credit at out_port %d Cr_staging_pl: %b \n",id,i,crtmp);
                 if(!full(i))
                 begin
+                    $display("%d enqueueing",id);
                     tenqueue(i,crtmp`BufferTimeStamp+credit_delay,crtmp`BufferVc);
                 end
                 else begin
@@ -199,6 +201,7 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
 
           if(!tempty(i,in_cycle)) begin
               dequeue(vc,i);
+              $display("%d credit ready in queue out %d vc %d !!",id,i,vc);
               credit[i][vc]=credit[i][vc]+1;
           end
           if(!empty(i)) begin
@@ -263,7 +266,13 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
                                 mark_in[i]=1;
                                 mark_out[out_p]=1;
                                 out_staging_ar[out_p]=buffer[i][vc];
-                                out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                //out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                out_cr_staging_ar[i]='b0;
+                                out_cr_staging_ar[i]`BufferFull=1;
+                                out_cr_staging_ar[i]`BufferVc=vc;
+                                out_cr_staging_ar[i]`BufferTimeStamp=in_cycle;
+                                if(`debug)
+                                    $display("%d Note: sending credit on in_port %d, cr_staging: %b",id,i,out_cr_staging_ar[i]);
                                 buffer[i][vc]='b0;
                           end else
                           if(cred > 0 ) begin
@@ -279,10 +288,16 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
                                 mark_out[out_p]=1;
 
                                 out_staging_ar[out_p]=buffer[i][vc];
-                                out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                out_cr_staging_ar[i]='b0;
+                                out_cr_staging_ar[i]`BufferFull=1;
+                                out_cr_staging_ar[i]`BufferVc=vc;
+                                out_cr_staging_ar[i]`BufferTimeStamp=in_cycle;
                                 cred=cred-1;
                                 credit[out_p][vc]=cred;
                                 buffer[i][vc]='b0;
+                                
+                                if(`debug)
+                                    $display("%d Note: sending credit on in_port %d, cr_staging: %b",id,i,out_cr_staging_ar[i]);
                           end
                       end
                   end
