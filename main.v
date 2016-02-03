@@ -12,6 +12,8 @@
 `define InitTraffic 6 //internal state
 `define FillTraffic 7 //internal state
 `define PreDequeTraffic 8
+`define EndState 9
+`define InitState 10
 `define State_bit 4
 
 
@@ -26,7 +28,7 @@
 `define NumFlit 10
 `define InitTrafficTotalNumTraffic [31:22]
 
-module main();
+module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input wire reset, input wire clk);
 
 
     reg [`State_bit-1             :0]     state;
@@ -36,8 +38,8 @@ module main();
     reg done_fill_traffic;
     integer cnt_fill_traffic;
     integer i, j;
-    reg is_end;
-    reg clk;
+    // reg is_end;
+    // reg clk;
 
     /*******************************
     **   read_router reg          **
@@ -72,7 +74,7 @@ module main();
     wire [`maxio*`BufferBitSize-1   :0]     in_cr_staging[0:`RouterSize-1];
     reg [`BufferBitSize-1           :0]     in_cr_staging_ar[0:`RouterSize-1][0:`maxio-1];
     reg [`DataBitSize-1             :0]     router_data[0:`RouterSize-1];
-    reg [`in_cycle_size-1           :0]     in_cycle;
+    // reg [`in_cycle_size-1           :0]     in_cycle;
     reg [`op_size-1                 :0]     router_op[0:`RouterSize-1];
 
     generate
@@ -327,11 +329,10 @@ module main();
     end
     endtask
 
-    initial
+    task init_state;
     begin
         read_router();
         read_traffic();
-        clk = 0;
         in_cycle = 0;
         cnt_fill_traffic <= 0;
         load_rt_stage = 0;
@@ -340,9 +341,9 @@ module main();
             router_op[i] <= `NOP;
             traffic_op[i] <= `NOP;
         end
-        state = `InitTraffic;
     end
-    always #1 clk=~clk;
+    endtask
+
 
     task nop_traffic;
         integer i;
@@ -370,88 +371,126 @@ module main();
     end
     endtask
 
-    always @(posedge clk) begin
-        case(state)
-            `InitRouter:
-            begin
-                if(`debug)
-                    $display("***main State: Init***");
-                nop_traffic;
-                init_router;
-                state <= `LoadRtRouter;
-            end
-            `LoadRtRouter:
-            begin
-                if(`debug)
-                    $display("***main State: LoadRt***");
-                load_rt;
-                state <= `LoadRtRouter;
-                if(load_rt_stage >= `RouterSize)
-                    state <= `LoadStagingRouter;
-            end
-            `LoadStagingRouter:
-            begin
-                if(`debug)
-                    $display("***main State: LoadStaging***");
-                load_staging();
-                state <= `Phase0Router;
-            end
-            `Phase0Router:
-            begin
-                if(`debug)
-                    $display("***main State: Phase0***");
-                nop_traffic;
-                phase0();
-                state <= `Phase1Router;
-            end
-            `Phase1Router:
-            begin
-                if(`debug)
-                    $display("***main State: Phase1***");
-                phase1();
-                state <= `CheckEnd;
-                in_cycle = in_cycle + 1;
-            end
-            `CheckEnd:
-            begin
-                if(`debug)
-                    $display("***main State: CheckEnd***");
-                check_end();
-                if(is_end == 1'b1)
+    always @(posedge clk or reset) begin
+        if(reset)
+            state <= `InitState;
+        else
+        begin
+            case(state)
+                `EndState:
                 begin
-                    $display("finished at Cycle: %d", in_cycle);
-                    $stop;
+                    if(`debug)
+                        $display("***main State: EndState***");
                 end
-                else
-                    state <= `LoadStagingRouter;
-            end
-            `InitTraffic:
-            begin
-                if(`debug)
-                    $display("***main State: InitTraffic***");
-                init_traffic();
-                state <= `FillTraffic;
-            end
-            `FillTraffic:
-            begin
-                if(`debug)
-                    $display("***main State: FillTraffic***");
-                fill_traffic();
-                if(done_fill_traffic == 1'b0)
-                    state <= `PreDequeTraffic;
-                else
+                `InitState:
+                begin
+                    if(`debug)
+                        $display("***main State: InitState***");
+                    init_state;
+                    state <= `InitTraffic;
+                end
+                `InitRouter:
+                begin
+                    if(`debug)
+                        $display("***main State: InitRouter***");
+                    nop_traffic;
+                    init_router;
+                    state <= `LoadRtRouter;
+                end
+                `LoadRtRouter:
+                begin
+                    if(`debug)
+                        $display("***main State: LoadRtRouter***");
+                    load_rt;
+                    state <= `LoadRtRouter;
+                    if(load_rt_stage >= `RouterSize)
+                        state <= `LoadStagingRouter;
+                end
+                `LoadStagingRouter:
+                begin
+                    if(`debug)
+                        $display("***main State: LoadStagingRouter***");
+                    load_staging();
+                    state <= `Phase0Router;
+                end
+                `Phase0Router:
+                begin
+                    if(`debug)
+                        $display("***main State: Phase0Router***");
+                    nop_traffic;
+                    phase0();
+                    state <= `Phase1Router;
+                end
+                `Phase1Router:
+                begin
+                    if(`debug)
+                        $display("***main State: Phase1Router***");
+                    phase1();
+                    state <= `CheckEnd;
+                    in_cycle = in_cycle + 1;
+                end
+                `CheckEnd:
+                begin
+                    if(`debug)
+                        $display("***main State: CheckEnd***");
+                    check_end();
+                    if(is_end == 1'b1)
+                    begin
+                        $display("finished at Cycle: %d", in_cycle);
+                        state <= `EndState;
+                    end
+                    else
+                        state <= `LoadStagingRouter;
+                end
+                `InitTraffic:
+                begin
+                    if(`debug)
+                        $display("***main State: InitTraffic***");
+                    init_traffic();
                     state <= `FillTraffic;
-            end
-            `PreDequeTraffic:
-            begin
-                if(`debug)
-                    $display("***main State: PreDequeTraffic***");
-                pre_dequeue_traffic();
-                state <= `InitRouter;
-            end
-        endcase
-
+                end
+                `FillTraffic:
+                begin
+                    if(`debug)
+                        $display("***main State: FillTraffic***");
+                    fill_traffic();
+                    if(done_fill_traffic == 1'b0)
+                        state <= `PreDequeTraffic;
+                    else
+                        state <= `FillTraffic;
+                end
+                `PreDequeTraffic:
+                begin
+                    if(`debug)
+                        $display("***main State: PreDequeTraffic***");
+                    pre_dequeue_traffic();
+                    state <= `InitRouter;
+                end
+            endcase
+        end
         // state <= next_state;
     end
 
+endmodule
+
+
+module stimulus();
+    wire is_end;
+    wire [`in_cycle_size-1:0] in_cycle;
+    reg reset;
+    reg clk;
+
+    always #1 clk=~clk;
+
+    main m(is_end, in_cycle, reset, clk);
+    initial begin
+        clk=0;
+        reset = 1;
+        #1 reset = 0;
+    end
+
+    always @(posedge is_end)
+    begin
+        $display("\n*************** SIMUlATION END AT CYCLE : %d *********************", in_cycle);
+    end
 endmodule
