@@ -1,8 +1,8 @@
 //`ifndef parameters
 `define parameters 1
 `define debug 1
-`define debugRouter 1
-`define debugTraffic 1
+// `define debugRouter 0
+// `define debugTraffic 1
 `define input_buffer_size 1
 
 `define maxio 16
@@ -26,6 +26,12 @@
 `define Phase1 3
 `define LoadRt 4
 `define Init   5
+
+//traffic states
+`define PreDeque 4
+//Init
+`define Fill   6
+`define Dequeue   7
 
 `define CopyStaging 0
 `define Range(i,siz) siz*(i+1)-1:siz*i
