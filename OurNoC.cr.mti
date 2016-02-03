@@ -1,25 +1,25 @@
-C:/codes/contrib/OurNoC/traffic.v {1 {vlog -work work C:/codes/contrib/OurNoC/traffic.v
-Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
--- Compiling module traffic
-
-Top level modules:
-	traffic
-
-} {} {}} C:/codes/contrib/OurNoC/flit.v {1 {vlog -work work C:/codes/contrib/OurNoC/flit.v
+C:/codes/contrib/OurNoC/flit.v {1 {vlog -work work C:/codes/contrib/OurNoC/flit.v
 Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling module flit
 
 Top level modules:
 	flit
 
-} {} {}} C:/codes/contrib/OurNoC/parameters.v {1 {vlog -work work {C:\codes\contrib\OurNoC\parameters.v}
+} {} {}} C:/codes/contrib/OurNoC/traffic.v {1 {vlog -work work C:/codes/contrib/OurNoC/traffic.v
 Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
-
-} {} {}} C:/codes/contrib/OurNoC/router.v {1 {vlog -work work {C:\codes\contrib\OurNoC\router.v}
-Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
--- Compiling module router
+-- Compiling module traffic
 
 Top level modules:
-	router
+	traffic
+
+} {} {}} C:/codes/contrib/OurNoC/parameters.v {1 {vlog -work work C:/codes/contrib/OurNoC/parameters.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+
+} {} {}} C:/codes/contrib/OurNoC/main.v {1 {vlog -work work C:/codes/contrib/OurNoC/main.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+-- Compiling module main
+
+Top level modules:
+	main
 
 } {} {}}
