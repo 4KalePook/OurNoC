@@ -371,7 +371,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
     end
     endtask
 
-    always @(posedge clk or reset) begin
+    always @(posedge clk or posedge reset) begin
         if(reset)
             state <= `InitState;
         else
