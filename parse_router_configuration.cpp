@@ -75,13 +75,13 @@ void read_and_write_traffic(char *traffic_fn) {
         route=1;
       fprintf(pFile, "%x %x %x\n", src, dest, out_port);
     } else if ((ret = sscanf(str, "node %d:%d\n", &src, &num_packets_to_send)) == 2) {
-        if(!packet)
+        // if(!packet)
             fprintf(pFile, "x //packet\n");
         packet = 1;
       fprintf(pFile, "%x %x\n", src, num_packets_to_send);
 
     } else if ((ret = sscanf(str, "%d:%d:%d:%d\n", &src, &dest, &vc, &num_flits)) == 4) {
-        fprintf(pFile, "%x %x %x %x\n", src, dest, vc, num_flits);
+        fprintf(pFile, "%x %x %x %x //src dest vc num_flits\n", src, dest, vc, num_flits);
     } else if (!strncmp("end", str, 3)) {
       // provides an optional way to terminate reading the traffic file
       break;
