@@ -116,7 +116,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             num_vcs = mem[1];
             
             
-            for(i=0; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
+            for(i=2; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
             begin //src:outport -> dst:inport
                 memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
                 memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
