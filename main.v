@@ -212,13 +212,13 @@ module main();
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
                 if(`debugRouter && j<5 && i<5)
                 begin
-                    $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                        i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
-                    $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
+                    // $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                    //     i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                    // $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
                 end
-                // if(`debugRouter && j<5 && i<2)
-                //     $display("  out_cr_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
-                //         out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
+                if(`debugRouter && j<5 && i<5)
+                    $display("in_cr[%d][%d] = out_cr[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
+                        i, j, out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
 
                 router_op[i] = `LoadStaging;
             end
