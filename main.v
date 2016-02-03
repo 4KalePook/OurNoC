@@ -113,7 +113,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=2;
             credit_delay = mem[0];
             num_vcs = mem[1];
-            while(mem[i][0] !== 1'bx)
+            while( i+3 < `mem_size && mem[i][0] !== 1'bx)
             begin //src:outport -> dst:inport
                 if(num_out_ports[mem[i]] < mem[i+1])
                     num_out_ports[mem[i]] = mem[i+1];
@@ -144,7 +144,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         $readmemh("traffic_configuration_file.hex", mem);
         i=1;
         max_cycle = mem[0];
-        while(mem[i][0] !== 1'bx)
+        while(i+2 < `mem_size && mem[i][0] !== 1'bx)
         begin
             routing_table[mem[i]][mem[i+1]] = mem[i+2]; // src:dest = out_port
             if(`debugRouter)
@@ -152,7 +152,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=i+3;
         end
         i=i+1;
-        while(mem[i][0] !== 1'bx)
+        while(i+1 < `mem_size && mem[i][0] !== 1'bx)
         begin
             total_num_traffic[mem[i]] = mem[i+1];
             if(`debugTraffic)
@@ -160,7 +160,7 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=i+2;
             k=0;
             j=0;
-            while(mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
+            while(i+j+3 < `mem_size && mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
                 all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
