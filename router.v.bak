@@ -229,9 +229,10 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
       mark_in='b0;
       ret=1;
       for(i=0; i<`maxio; i=i+1) begin
-          for(vc=0; vc<`maxvc; vc=vc+1) begin
+//         for(vc=0; vc<`maxvc; vc=vc+1) begin
               out_staging_ar[i]='b0;
-          end
+              out_cr_staging_ar[i]='b0;
+//         end
       end
 
       for(vc=0; vc<`maxvc; vc=vc+1) begin
@@ -266,7 +267,11 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
                                 mark_in[i]=1;
                                 mark_out[out_p]=1;
                                 out_staging_ar[out_p]=buffer[i][vc];
-                                out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                //out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                out_cr_staging_ar[i]='b0;
+                                out_cr_staging_ar[i]`BufferFull=1;
+                                out_cr_staging_ar[i]`BufferVc=vc;
+                                out_cr_staging_ar[i]`BufferTimeStamp=in_cycle;
                                 if(`debug)
                                     $display("%d Note: sending credit on in_port %d, cr_staging: %b",id,i,out_cr_staging_ar[i]);
                                 buffer[i][vc]='b0;

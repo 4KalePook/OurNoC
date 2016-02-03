@@ -229,9 +229,10 @@ module  router #(parameter id)(out_staging,out_cr_staging, done, can_inject, op,
       mark_in='b0;
       ret=1;
       for(i=0; i<`maxio; i=i+1) begin
-          for(vc=0; vc<`maxvc; vc=vc+1) begin
-              out_staging_ar[i]='b0;
-          end
+           out_staging_ar[i]='b0;
+           out_cr_staging_ar[i]='b0;
+//         for(vc=0; vc<`maxvc; vc=vc+1) begin
+//         end
       end
 
       for(vc=0; vc<`maxvc; vc=vc+1) begin
