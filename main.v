@@ -3,6 +3,7 @@
 `include "parameters.v"
 
 //internal state
+`define CheckEnd 0
 `define Phase0Router 1
 `define Phase1Router 2
 `define LoadStagingRouter 3
@@ -15,8 +16,6 @@
 
 
 
-`define debugRouter 1
-`define debugTraffic 1
 
 `define Init   5
 `define Fill   6
@@ -37,6 +36,7 @@ module main();
     reg done_fill_traffic;
     integer cnt_fill_traffic;
     integer i, j;
+    reg is_end;
     reg clk;
 
     /*******************************
@@ -78,7 +78,7 @@ module main();
     generate
     for(genvar_i=0; genvar_i<`RouterSize; genvar_i=genvar_i+1)
     begin:routers
-        router r(out_staging[genvar_i], out_cr_staging[genvar_i], done[genvar_i], can_inject[genvar_i], router_op[genvar_i], in_staging[genvar_i], in_cr_staging[genvar_i], router_data[genvar_i], in_cycle, clk);
+        router #(genvar_i) r(out_staging[genvar_i], out_cr_staging[genvar_i], done[genvar_i], can_inject[genvar_i], router_op[genvar_i], in_staging[genvar_i], in_cr_staging[genvar_i], router_data[genvar_i], in_cycle, clk);
         for(genvar_j=0; genvar_j<`maxio; genvar_j=genvar_j+1)
         begin
             assign out_staging_ar[genvar_i][genvar_j] = out_staging[genvar_i][`Range(genvar_j,`BufferBitSize)];
@@ -191,13 +191,13 @@ module main();
         integer i, j;
         for(i=0; i<`RouterSize; i=i+1)
         begin
-            if(`debugTraffic && i < 2)
+            if(`debugTraffic && i < 5)
                 $display("  traffic_buffer[%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                     i, traffic_buffer[i]  `BufferFull, traffic_buffer[i]  `BufferVc, traffic_buffer[i]  `FlitHead, traffic_buffer[i]  `FlitTail, traffic_buffer[i] `FlitDst);
 
             if(can_inject[i][traffic_buffer[i] `BufferVc])
             begin
-                in_staging_ar[i][0] = traffic_buffer[i][0];
+                in_staging_ar[i][0] = traffic_buffer[i];
                 traffic_op[i] <= `Dequeue;
                 $display("raft too");
             end
@@ -207,9 +207,12 @@ module main();
             begin
                 in_staging_ar[out_router[i][j]][out_port[i][j]] = out_staging_ar[i][j];
                 in_cr_staging_ar[i][j] = out_cr_staging_ar[out_router[i][j]][out_port[i][j]];
-                if(`debugRouter && j<5 && i<2)
+                if(`debugRouter && j<5 && i<5)
+                begin
                     $display("  out_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                         i, j, out_staging_ar[i][j] `BufferFull, out_staging_ar[i][j] `BufferVc, out_staging_ar[i][j] `FlitHead, out_staging_ar[i][j] `FlitTail, out_staging_ar[i][j] `FlitDst);
+                    $display("  out_port[%d][%d]: %b out_router: %b",i, j, out_port[i][j], out_router[i][j]);
+                end
                 // if(`debugRouter && j<5 && i<2)
                 //     $display("  out_cr_staging_ar[%d][%d]: BufferFull: %b BufferVc: %b FlitHead: %b FlitTail: %b FlitDst: %b",
                 //         out_router[i][j], out_port[i][j], out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferFull, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `BufferVc, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitHead, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitTail, out_cr_staging_ar[out_router[i][j]][out_port[i][j]] `FlitDst);
@@ -228,7 +231,7 @@ module main();
             router_data[i]`InitNumOutPort = num_out_ports[i];
             router_data[i]`InitNumVc = num_vcs;
             router_data[i]`InitCreditDelay = credit_delay;
-            if(`debugRouter && i<2)
+            if(`debugRouter && i<5)
                 $display("  router[%d]: InitNumInPort:%b InitNumOutPort:%b InitNumVc:%b InitCreditDelay:%b",
                     i, router_data[i]`InitNumInPort,router_data[i]`InitNumOutPort,router_data[i]`InitNumVc,router_data[i]`InitCreditDelay);
             router_op[i] = `Init;
@@ -245,7 +248,7 @@ module main();
                 router_data[i]`RTOutPort = routing_table[i][load_rt_stage];
                 router_data[i]`RTDst = load_rt_stage;
                 router_op[i] = `LoadRt;
-                if(`debugRouter && i<2)
+                if(`debugRouter && i<5)
                     $display("  router[%d]: RTOutPort:%b RTDst:%b",
                         i, router_data[i]`RTOutPort,router_data[i]`RTDst);
 
@@ -346,9 +349,26 @@ module main();
         end
     endtask
 
+
+
+    task check_end;
+    begin
+        is_end = 1;
+        for(i=0; i<`RouterSize; i=i+1)
+        begin
+            router_op[i] = `NOP;
+            if(done[i] !== 1'b1)
+            begin
+                is_end = 0;
+                if(`debugRouter)
+                    $display("  done[%d]: %b", i, done[i]);
+            end
+        end
+    end
+    endtask
+
     always @(posedge clk) begin
         case(state)
-            `NOP: ;
             `InitRouter:
             begin
                 if(`debug)
@@ -386,8 +406,21 @@ module main();
                 if(`debug)
                     $display("***main State: Phase1***");
                 phase1();
-                state <= `LoadStagingRouter;
+                state <= `CheckEnd;
                 in_cycle = in_cycle + 1;
+            end
+            `CheckEnd:
+            begin
+                if(`debug)
+                    $display("***main State: CheckEnd***");
+                check_end();
+                if(is_end == 1'b1)
+                begin
+                    $display("finished at Cycle: %d", in_cycle);
+                    $finish;
+                end
+                else
+                    state <= `LoadStagingRouter;
             end
             `InitTraffic:
             begin

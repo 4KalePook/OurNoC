@@ -257,9 +257,9 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
 
                                 mark_in[i]=1;
                                 mark_out[out_p]=1;
-
                                 out_staging_ar[out_p]=buffer[i][vc];
                                 out_cr_staging_ar[i]={1'b1,vc,in_cycle};
+                                buffer[i][vc]='b0;
                           end else
                           if(cred > 0 ) begin
 
@@ -277,6 +277,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
                                 out_cr_staging_ar[i]={1'b1,vc,in_cycle};
                                 cred=cred-1;
                                 credit[out_p][vc]=cred;
+                                buffer[i][vc]='b0;
                           end
                       end
                   end
@@ -300,7 +301,7 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
 //      numvcs=data`InitNumVc;
 //      num_out_ports=data`InitNumOutPort;
 //      num_in_ports=data`InitNumInPort;
-      done=0;
+      done=1;
       for(i=0;i<`maxio;i=i+1) begin
           in_staging[i]='b0;
           for(j=0; j<`maxvc; j=j+1) begin
@@ -325,6 +326,8 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
       endcase
   end
   /*
+=======
+
   reg[31:0] in_data;
   initial begin
 
@@ -343,7 +346,9 @@ module router(out_staging,out_cr_staging, done, can_inject, op, in_staging_pl, c
       #100 load_staging();
       #100 phase0();
       #100 phase1();
+      #100 phase1();
 
   end
   */
+
 endmodule
