@@ -69,7 +69,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
       reg[`IndBitSize-1:0] elem;
       begin
         elem =tail_crst[out_port];
-        crst[out_port][elem]`BufferTimeStamp=cycle+credit_delay;
+        crst[out_port][elem]`BufferTimeStamp=cycle;
         crst[out_port][elem]`BufferVc=vc;
         crst[out_port][elem]`BufferFull=1;
         tail_crst[out_port]=(tail_crst[out_port]+1)%`crbufsz;
@@ -158,7 +158,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
                     $display("%d Incoming credit at out_port %d Cr_staging_pl: %b \n",id,i,crtmp);
                 if(!full(i))
                 begin
-                    $display("%d enqueueing",id);
+                    $display("%d enqueueing TimeStamp:%d delay:%d sum:%b",id,crtmp`BufferTimeStamp,credit_delay,crtmp`BufferTimeStamp+credit_delay);
                     tenqueue(i,crtmp`BufferTimeStamp+credit_delay,crtmp`BufferVc);
                 end
                 else begin
@@ -201,7 +201,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
 
           if(!tempty(i,in_cycle)) begin
               dequeue(vc,i);
-              $display("%d credit ready in queue out %d vc %d !!",id,i,vc);
+              $display("%d credit ready in queue out %d vc %d cycle:%d !!",id,i,vc,in_cycle);
               credit[i][vc]=credit[i][vc]+1;
           end
           if(!empty(i)) begin
@@ -255,8 +255,7 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
 
                           if(out_p==0)begin
 
-                                if(`debug)
-                                    $display("%d Note: sending data.",id);
+
 
                                 if(flit`FlitTail)
                                   cur_in_port[out_p][vc]='b1;
@@ -272,13 +271,13 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
                                 out_cr_staging_ar[i]`BufferVc=vc;
                                 out_cr_staging_ar[i]`BufferTimeStamp=in_cycle;
                                 if(`debug)
+                                    $display("%d Note: sending data at cycle %d. flit: %b",id,in_cycle,out_staging_ar[out_p]);
+                                if(`debug)
                                     $display("%d Note: sending credit on in_port %d, cr_staging: %b",id,i,out_cr_staging_ar[i]);
                                 buffer[i][vc]='b0;
                           end else
                           if(cred > 0 ) begin
 
-                                if(`debug)
-                                    $display("%d Note: credit is non-zero, sending data.",id);
                                 if(flit`FlitTail)
                                   cur_in_port[out_p][vc]='b1;
                                 else
@@ -295,6 +294,8 @@ module  router #(parameter id=1)(out_staging,out_cr_staging, done, can_inject, o
                                 cred=cred-1;
                                 credit[out_p][vc]=cred;
                                 buffer[i][vc]='b0;
+                                if(`debug)
+                                    $display("%d Note: credit is non-zero, sending data at cycle %d flit:%b.",id,in_cycle,out_staging_ar[out_p]);
                                 
                                 if(`debug)
                                     $display("%d Note: sending credit on in_port %d, cr_staging: %b",id,i,out_cr_staging_ar[i]);
