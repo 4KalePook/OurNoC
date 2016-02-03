@@ -116,13 +116,13 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             num_vcs = mem[1];
             
             
-            for(; i < `read_word_size && mem[i][0] !== 1'bx ; i=i+4)
+            for(; i < `mem_size && mem[i][0] !== 1'bx ; i=i+4)
             begin //src:outport -> dst:inport
                 
-                memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
-                memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
-                memoff[2]=`SafeAccess(mem,i+2,`read_word_size-1);
-                memoff[3]=`SafeAccess(mem,i+3,`read_word_size-1);
+                memoff[0]=`SafeAccess(mem,i,`mem_size);
+                memoff[1]=`SafeAccess(mem,i+1,`mem_size);
+                memoff[2]=`SafeAccess(mem,i+2,`mem_size);
+                memoff[3]=`SafeAccess(mem,i+3,`mem_size);
                 if(num_out_ports[memoff[0]] < memoff[1])
                     num_out_ports[memoff[0]] = memoff[1];
                 if(num_in_ports[memoff[2]] < memoff[3])
@@ -152,17 +152,17 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         $readmemh("traffic_configuration_file.hex", mem);
         i=1;
         max_cycle = mem[0];
-        for(; i < `read_word_size && (mem[i][0] !== 1'bx) ; i=i+3)
+        for(; i < `mem_size && (mem[i][0] !== 1'bx) ; i=i+3)
         begin
-            memoff[0]=`SafeAccess(mem,i,`read_word_size-1);
-            memoff[1]=`SafeAccess(mem,i+1,`read_word_size-1);
-            memoff[2]=`SafeAccess(mem,i+2,`read_word_size-1);
+            memoff[0]=`SafeAccess(mem,i,`mem_size);
+            memoff[1]=`SafeAccess(mem,i+1,`mem_size);
+            memoff[2]=`SafeAccess(mem,i+2,`mem_size);
             routing_table[memoff[0]][memoff[1]] = memoff[2]; // src:dest = out_port
             if(`debugRouter)
                 $display("  routing table: %b %b %b", memoff[0], memoff[1], memoff[2]);
         end
         i=i+1;
-        for(;(i+1 <`read_word_size)&& (mem[i][0] !== 1'bx);i=i+j)
+        for(;(i+1 <`mem_size)&& (mem[i][0] !== 1'bx);i=i+j)
         begin
             total_num_traffic[mem[i]] = mem[i+1];
             if(`debugTraffic)
@@ -170,13 +170,13 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             i=i+2;
             k=0;
             j=0;
-            for(j=0;(i+j+3 < `read_word_size)&&(k < `TotalNumTrafficSize)&&(mem[i+j][0] !== 1'bx && j<mem[i-1]*4);j=j+4)
+            for(j=0;(i+j+3 < `mem_size)&&(k < `TotalNumTrafficSize)&&(mem[i+j][0] !== 1'bx && j<mem[i-1]*4);j=j+4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
                 
-                memoff[0]=`SafeAccess(mem,i+j,`read_word_size-1);
-                memoff[1]=`SafeAccess(mem,i+j+1,`read_word_size-1);
-                memoff[2]=`SafeAccess(mem,i+j+2,`read_word_size-1);
+                memoff[0]=`SafeAccess(mem,i+j,`mem_size);
+                memoff[1]=`SafeAccess(mem,i+j+1,`mem_size);
+                memoff[2]=`SafeAccess(mem,i+j+2,`mem_size);
                 
                 all_traffic[memoff[0]][k]`DataDst = memoff[1];
                 all_traffic[memoff[0]][k]`DataVc = memoff[2];
