@@ -99,7 +99,8 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
     *******************************/
 	 task read_router;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
-    integer i, j;
+    reg[`read_word_size-1:0] memoff[0:3];
+    reg[8:0] i, j;
     begin
         if(`debugRouter)
             $display("Read router connection from file:");
@@ -115,15 +116,19 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
             num_vcs = mem[1];
             while( i+3 < `mem_size && mem[i][0] !== 1'bx)
             begin //src:outport -> dst:inport
-                if(num_out_ports[mem[i]] < mem[i+1])
-                    num_out_ports[mem[i]] = mem[i+1];
-                if(num_in_ports[mem[i+2]] < mem[i+3])
-                    num_in_ports[mem[i+2]] = mem[i+3];
+                memoff[0]=`SafeAccess(mem,i,`mem_size);
+                memoff[1]=`SafeAccess(mem,i+1,`mem_size);
+                memoff[2]=`SafeAccess(mem,i+2,`mem_size);
+                memoff[3]=`SafeAccess(mem,i+3,`mem_size);
+                if(num_out_ports[memoff[0]] < memoff[1])
+                    num_out_ports[memoff[0]] = memoff[1];
+                if(num_in_ports[memoff[2]] < memoff[3])
+                    num_in_ports[memoff[2]] = memoff[3];
 
-                out_router[mem[i]][mem[i+1]] = mem[i+2];
-                out_port[mem[i]][mem[i+1]] = mem[i+3];
+                out_router[memoff[0]][memoff[1]] = memoff[2];
+                out_port[memoff[0]][memoff[1]] = memoff[3];
                 if(`debugRouter)
-                    $display("  router connection : %b %b %b %b", mem[i+0], mem[i+1], mem[i+2], mem[i+3]);
+                    $display("  router connection : %b %b %b %b", memoff[0], memoff[1], memoff[2], memoff[3]);
                 i=i+4;
             end
         end
@@ -132,7 +137,8 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
 ////////////////////////////////////////////////////
 	task read_traffic;
     reg[`read_word_size-1:0] mem[0:`mem_size-1];
-    integer i, j, k;
+    reg[`read_word_size-1:0] memoff[0:3];
+    reg[8:0] i, j, k;
     begin
         if(`debugTraffic | `debugRouter)
             $display("Read traffic and routing table from file:");
@@ -146,30 +152,42 @@ module main(output reg is_end, output reg [`in_cycle_size-1:0] in_cycle, input w
         max_cycle = mem[0];
         while(i+2 < `mem_size && mem[i][0] !== 1'bx)
         begin
-            routing_table[mem[i]][mem[i+1]] = mem[i+2]; // src:dest = out_port
+            memoff[0]=`SafeAccess(mem,i,`mem_size);
+            memoff[1]=`SafeAccess(mem,i+1,`mem_size);
+            memoff[2]=`SafeAccess(mem,i+2,`mem_size);
+            
+            routing_table[memoff[0]][memoff[1]] = memoff[2]; // src:dest = out_port
             if(`debugRouter)
-                $display("  routing table: %b %b %b", mem[i+0], mem[i+1], mem[i+2]);
+                $display("  routing table: %b %b %b", memoff[0], memoff[1], memoff[2]);
             i=i+3;
         end
         i=i+1;
         while(i+1 < `mem_size && mem[i][0] !== 1'bx)
         begin
-            total_num_traffic[mem[i]] = mem[i+1];
+            
+            memoff[0]=`SafeAccess(mem,i,`mem_size);
+            memoff[1]=`SafeAccess(mem,i+1,`mem_size);
+            
+            total_num_traffic[memoff[0]] = memoff[1];
             if(`debugTraffic)
                 $display("  nod : %b %b", mem[i+0], mem[i+1]);
             i=i+2;
             k=0;
             j=0;
-            while(i+j+3 < `mem_size && mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
+            while(i+j+3 < `mem_size && (k < `TotalNumTrafficSize)&& mem[i+j][0] !== 1'bx && j<mem[i-1]*4)
             begin
                 // all_traffic[mem[i+j]][FlitSrc] = mem[i+j];
-                all_traffic[mem[i+j]][k]`DataDst = mem[i+j+1];
-                all_traffic[mem[i+j]][k]`DataVc = mem[i+j+2];
-                all_traffic[mem[i+j]][k]`DataNumFlit = mem[i+j+3];
+                memoff[0]=`SafeAccess(mem,i+j,`mem_size);
+                memoff[1]=`SafeAccess(mem,i+j+1,`mem_size);
+                memoff[2]=`SafeAccess(mem,i+j+2,`mem_size);
+                memoff[3]=`SafeAccess(mem,i+j+3,`mem_size);
+                all_traffic[memoff[0]][k]`DataDst = memoff[1];
+                all_traffic[memoff[0]][k]`DataVc = memoff[2];
+                all_traffic[memoff[0]][k]`DataNumFlit = memoff[3];
                 k=k+1;
                 total_num_traffic_input[mem[i]] = k;
                 if(`debugTraffic)
-                    $display("  flit : %b %b %b %b", mem[i+j], mem[i+j+1], mem[i+j+2], mem[i+j+3]);
+                    $display("  flit : %b %b %b %b", memoff[0], memoff[1], memoff[2], memoff[3]);
                 j= j+4;
             end
             i = i+j;
