@@ -5,14 +5,14 @@
 // `define debugTraffic 1
 `define input_buffer_size 1
 
-`define maxio 16
+`define maxio 5
 `define maxio_bit 4
-`define maxvc 8
+`define maxvc 4
 
 
-`define crbufsz 100
+`define crbufsz 10
 
-`define max_cr_delay 100
+`define max_cr_delay 10
 
 `define debugRouter 1
 `define debugTraffic 1
@@ -42,7 +42,7 @@
 `define VcBitSize 4
 `define NumVcBitSize 5 //should one bit more 16vc for example
 `define RouterBitSize 14
-`define RouterSize 10
+`define RouterSize 4
 `define PortSize 6
 `define PortBitSize 7 //hooman value!!
 `define CreditDelayBitSize 12 //hooman value!!!
